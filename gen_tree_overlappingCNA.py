@@ -52,6 +52,12 @@ amp_num_list = [1, 0, 3, 3, 0, 0, 0, 0, 0]
 #cn_list2 = [20,45,40]
 #if_del_list = [1,1]
 
+# combining all aberrations together
+class MyAberration():
+    def __init__(self, ab_type, CN, SNV):
+        self.ab_type = ab_type
+        self.CN = CN
+        self.SNV = SNV
 
 # definition of one SNV
 class MySNV():
@@ -69,6 +75,24 @@ class corres_coord():
         self.ref = [r1, r2]
         self.gen = [g1, g2]
 
+class tree_elements():
+    def __init__(self):
+        # from a level to an array, each element of which contains the chromosome length information for a node on this level 
+        self.level_chrlens = dict()
+        # from a level to an array, each element of which is a value of the index of the node on this level
+        self.level_indice = dict()
+        # from an index to a chromosome name
+        self.chr_name_array = []
+        # # of nodes on the leaves
+        self.tree_W = -1
+        # depth of the tree
+        self.tree_D = -1
+    def get_depth(self):
+        return self.tree_D
+    def get_width(self):
+        return self.tree_W
+
+# tree is an array of MyNode
 class MyNode(Node):
     def __init__(self, name, parent=None):
         Node.__init__(self, name, parent)
@@ -91,6 +115,7 @@ class MyNode(Node):
         self.depth = -1
         self.perc = -1
         self.is_leaf = True
+        self.aberrations = []
     def getTuple(self):
         return self.tuple
     def setDead(self):
@@ -101,6 +126,14 @@ class MyNode(Node):
         return self.depth
     def getPerc(self):
         return self.perc
+    def combine_aberrations(self):
+        for i in cn:
+            AB = MyAberration("CNA", i, "NA")
+            self.aberrations.append(AB)
+        for i in snvs:
+            AB = MyAberration("SNV", "NA", i)
+            self.aberrations.append(AB)
+        
 
 def get_range(chr_len, min_cn_size, exp_theta, CN_LIST_ID):
     # get pos1 and pos2 for the copy number. 
@@ -176,7 +209,8 @@ def wg2chr(chrlen, p):
 
 # given reference fasta, chrlen, snp_rate, branch length, add snvs by specifying its chr, position and change
 def add_SNV(chrlen, ref, snv_rate, length):
-    ret_ref = [row[:] for row in ref]
+    # not return a ref to save the memory
+    #ret_ref = [row[:] for row in ref]
     for ale in range(len(chrlen)):
         # decide how many snvs to be added according to snv_rate and length
         mean = snv_rate * length
@@ -197,16 +231,18 @@ def add_SNV(chrlen, ref, snv_rate, length):
             p = int(p_tmp[0])
             if p not in snv_ps:
                 chr, pos = wg2chr(chrlen[ale], p)
-                print(chr, pos, ret_ref[ale][chr][pos])
-                if ret_ref[ale][chr][pos] != 'N':
+                #print(chr, pos, ret_ref[ale][chr][pos])
+                #if ret_ref[ale][chr][pos] != 'N':
+                if ref[ale][chr][pos] != 'N':
                     # add to dictionary
                     snv_ps.append(p)
                     # randomly find a non-N nucleotide and randomly find an alternative for SNV
                     nuc = ret_ref[ale][chr][pos]
                     new_nuc = get_new_nuc(nuc)
                     snvs.append(MySNV(ale, chr, pos, nuc, new_nuc))
-                    ret_ref[ale][chr][pos] = new_nuc
-        return ret_ref, snvs
+                    #ret_ref[ale][chr][pos] = new_nuc
+        #return ret_ref, snvs
+        return snvs
 
 
 def add_CN(chrlen, cn_num, del_rate, min_cn_size, exp_theta, amp_p, corres, CN_LIST_ID, ref_len, summary):
@@ -438,20 +474,20 @@ def get_normal_regions_from_summary(summary, chr, ref_len):
 def print_corrs(corres):
     # print out the correspondence to check its correctness
     for i in range(len(corres)):
-        print "allele: " + str(i)
+        print("allele: " + str(i))
         for j in range(len(corres[i])):
-            print "chromosome: " + str(j)
+            print("chromosome: " + str(j))
             for k in range(len(corres[i][j])):
                 corr = corres[i][j][k]
                 ref = corr.ref
                 gen = corr.gen
-                print "ref: " + str(ref)
-                print "gen: " + str(gen)
+                print("ref: " + str(ref))
+                print("gen: " + str(gen))
 
 
 def print_hash(hash_):
     for key in sorted(hash_):
-        print str(key) + " " + str(hash_[key])
+        print(str(key) + " " + str(hash_[key]))
 
 # given a hash, break all overlapping keys into non-overlapping ones and preserve the value for each segment, key is in start.end
 def break_overlap(hash_):
@@ -1036,6 +1072,11 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     # decide the width and depth of the tree
     tree_W = np.random.normal(loc=treeWidth, scale=treeWidthSigma, size=1)
     tree_D = np.random.normal(loc=treeDepth, scale=treeDepthSigma, size=1)
+    tree_ele = tree_elements()
+    tree_ele.tree_W = tree_W
+    tree_ele.tree_D = tree_D
+    level_chrlens = dict()
+    level_indice = dict()
     #n = 4
     #Beta = 0.5
     #Alpha = 0.5
@@ -1117,6 +1158,7 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     root=MyNode("0: [0,1]")
     root.tuple=[0,1]
     ref_array, chr_name_array, chr_sz = init_ref(template_ref)
+    tree_ele.chr_name_array = chr_name_array
     chr_sz1 = []
     # data structure for corresponding coordinates for calculating the actual CNV on reference
     # copy so that the two arrays of allele length are independent
@@ -1136,7 +1178,7 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     Tree.append(MyNode("0"))
     Tree[0].perc = 1
     # Note: tree depth starts from 1 for the first cancer cell in tumor
-    Tree[0].depth = 1
+    Tree[0].level = 1
     #Tree[0].tuple=[0,1]
     Tree[0].id = 0
     CN_LIST_ID = 0
@@ -1159,11 +1201,14 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     
     # update the reference on the node
     #Tree[0].ref = gen_ref(ref_array, Tree[0].cn)
-    #tmp_ref = gen_ref(ref_array, Tree[0].cn)
+    tmp_ref = gen_ref(ref_array, Tree[0].cn)
     # memory issue, write it to a file
     #fa_f_prefix = fa_prefix + str(0) + "_"
     #write_ref(tmp_ref, chr_name_array, fa_f_prefix)
-    #Tree[0].ref, Tree[0].snvs = add_SNV(Tree[0].chrlen, Tree[0].ref, snv_rate, Tree[0].edge_length)
+    # add snvs after adding CNs
+    Tree[0].snvs = add_SNV(Tree[0].chrlen, tmp_ref, snv_rate, Tree[0].edge_length)
+    
+    Tree[0].combine_aberrations() 
     
     #Tree.append(MyNode(str(1)+":[0,"+"{0:.2f}".format(Bi[0])+"]"+","+"{0:.4f}".format(ti[0])))
     #Tree.append(MyNode(str(2)+":["+"{0:.2f}".format(Bi[0])+",1]"+","+"{0:.4f}".format(ti[1])))
@@ -1182,18 +1227,14 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     #print "Node 2:"
     #print Tree[2].chrlen
     
-    # update the reference
-    #Tree[1].ref = gen_ref(Tree[0].ref, Tree[1].cn)
-    #Tree[2].ref = gen_ref(Tree[0].ref, Tree[2].cn)
-    # memory issue. at one time at most 2.5 references, each is 6gb (2 alleles). 
-    #parent_ref = read_ref(fa_prefix + str(0) + "_")
-    #tmp_ref = gen_ref(parent_ref, Tree[1].cn)
-    #fa_f_prefix = fa_prefix + str(1) + "_"
-    #write_ref(tmp_ref, chr_name_array, fa_f_prefix)
-    #tmp_ref = gen_ref(parent_ref, Tree[2].cn)
-    #fa_f_prefix = fa_prefix + str(2) + "_"
-    #write_ref(tmp_ref, chr_name_array, fa_f_prefix)
-    
+    # update the reference and add SNV
+    tmp_ref = gen_ref_from_tree(1, Tree, ref_array)
+    Tree[1].snvs = add_SNV(Tree[1].chrlen, tmp_ref, snv_rate, Tree[1].edge_length)
+    Tree[1].combine_aberrations() 
+    tmp_ref = gen_ref_from_tree(2, Tree, ref_array)
+    Tree[2].snvs = add_SNV(Tree[2].chrlen, tmp_ref, snv_rate, Tree[2].edge_length)
+    Tree[2].combine_aberrations() 
+        
     Tree[1].parent=Tree[0]
     Tree[2].parent=Tree[0]
     # set parent ID
@@ -1209,7 +1250,7 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     Tree[2].is_leaf = True
     # set depth
     Tree[1].depth = 2
-    Tree[2[.depth = 2
+    Tree[2].depth = 2
 
 
     Tree[1].tuple=[0,Bi[0]]
@@ -1293,6 +1334,14 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
                 Tree[node_number].cn, Tree[node_number].chrlen, Tree[node_number].corres, Tree[node_number].true_CNs, Tree[node_number].cn_summary, Tree[node_number].cn_detail = add_CN(this_chrlen, cn_num, del_rate, min_cn_size, exp_theta, amp_p, tree.corres, CN_LIST_ID, chr_sz, tree.cn_summary)
                 #Tree[node_number].cn_detail, Tree[node_number].cn_summary = get_cn_from_corres(Tree[node_number].corres, chr_sz)
                 this_chrlen = tree.chrlen[:]
+
+                # update the reference and add SNV
+                tmp_ref = gen_ref_from_tree(node_number - 1, Tree, ref_array)
+                Tree[node_number - 1].snvs = add_SNV(Tree[node_number - 1].chrlen, tmp_ref, snv_rate, Tree[node_number - 1].edge_length)
+                Tree[node_number - 1].combine_aberrations() 
+                tmp_ref = gen_ref_from_tree(node_number, Tree, ref_array)
+                Tree[node_number].snvs = add_SNV(Tree[node_number].chrlen, tmp_ref, snv_rate, Tree[node_number].edge_length)
+                Tree[node_number].combine_aberrations() 
                 #print this_chrlen
                 #print node_number, tree.getID()
 
@@ -1345,18 +1394,25 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     #    print("%s%s" % (pre, node.name))
     
     # record the chromosome length for each leaf on the tree
-    leaf_chrlen = []
+    #leaf_chrlen = []
     # record which are leaves
-    leaf_index = []
+    #leaf_index = []
     f.write("Before the tree, chromosomomal length is " + str(root.chrlen) + "\n")
     for i in range(len(Tree)):
         f.write("node %d: \n" % i)
         f.write("    parent = %d\n" % Tree[i].parent.getID())
         f.write("    name = " + str(Tree[i].name) + "\n")
     for i in range(len(Tree)):
-        if Tree[i].is_leaf:
-            leaf_index.append(i)
-            leaf_chrlen.append(Tree[i].chrlen)
+        level = Tree[i].level
+        if level not in level_indice:
+            level_indice[level] = []
+        level_indice[level].append(i)
+        if level not in level_chrlens:
+            level_chrlens[level] = []
+        level_chrlens[level].append(Tree[i].chrlen)
+        #if Tree[i].is_leaf:
+        #    leaf_index.append(i)
+        #    leaf_chrlen.append(Tree[i].chrlen)
         cn = Tree[i].cn
         f.write("node %d from %d: total CN # = %d\n" % (i, Tree[i].parent.getID(), len(cn)))
         for j in range(len(cn)):
@@ -1384,4 +1440,7 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     #    write_ref(Tree[i].ref, chr_name_array, fa_f_prefix)
     
     f.close()
-    return leaf_chrlen, leaf_index, chr_name_array, Tree
+    tree_ele.level_chrlens = level_chrlens
+    tree_ele.level_indice = level_indice
+    #return leaf_chrlen, leaf_index, chr_name_array, Tree
+    return Tree, tree_ele

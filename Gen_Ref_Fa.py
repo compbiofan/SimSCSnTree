@@ -5,7 +5,25 @@
 from CN import CN
 import os
 
+# does not generate a fa file, but return the variable
+def gen_ref_from_tree(ID, tree, ref):
+    trace = [ID]
+    visit = ID
+    while visit != 0:
+        visit = tree[visit].parentID
+        trace.append(visit)
+    # now reverse the trace so that the CNV and SNVs can be applied from root to leaf
+    AB = []
+    for i in range(len(trace)):
+        j = len(trace) - i - 1
+        # gather all CNs together
+        for ab in tree[trace[j]].aberrations:
+            AB.append(ab)
+    return gen_ref_wAberrations(ref, AB)
+
+
 def make_fa(ID, tree, ref, chr_name_array, fa_prefix):
+    # make it generalizable when not to dump to a fa
     fa_f_prefix = fa_prefix + str(ID) + "_"
     # record all the nodes that this route visited (from leaf to root)
     trace = [ID]
@@ -22,6 +40,24 @@ def make_fa(ID, tree, ref, chr_name_array, fa_prefix):
             CN.append(cn)
     new_ref = gen_ref(ref, CN)
     write_ref(new_ref, chr_name_array, fa_f_prefix)
+
+def make_fa_wABs(ID, tree, ref, chr_name_array, fa_prefix):
+    fa_f_prefix = fa_prefix + str(ID) + "_"
+    # record all the nodes that this route visited (from leaf to root)
+    trace = [ID]
+    visit = ID
+    while visit != 0:
+        visit = tree[visit].parentID
+        trace.append(visit)
+    # now reverse the trace so that SNV and CNV can be applied from root to leaf
+    AB = []
+    for i in range(len(trace)):
+        j = len(trace) - i - 1
+        # gather all aberrations
+        AB.append(tree[trace[j]].aberrations)
+    new_ref = gen_ref_wAberration(ref, AB)
+    write_ref(new_ref, chr_name_array, fa_f_prefix)
+
 
 def getlen_ref(template):
     # get only the chromosome name and length, to save space when it's not necessary
@@ -90,6 +126,40 @@ def gen_ref(ref, CNs):
             # deletion
             ret_ref[ale][chr_] = ret_ref[ale][chr_][:pos1] + ret_ref[ale][chr_][pos2:]
     return ret_ref
+
+# generate the reference with both SNVs and CNs
+def gen_ref_wAberration(ref, aberrations):
+    # return this reference
+    ret_ref = [row[:] for row in ref]
+    # in the order of the aberrations
+    for i in range(len(aberrations)):
+        if aberrations[i].type == "SNV":
+            SNV = aberrations[i].SNV
+            ale = SNV.ale
+            chr_ = SNV.chr
+            pos = SNV.pos
+            pos1 = pos + 1
+            new_nuc = SNV.new_nuc
+            ret_ref[ale][chr_] = ret_ref[ale][chr_][:pos] + new_nuc + ret_ref[ale][chr_][pos1:]
+
+        elif aberrations[i].type == "CNA": 
+            CN = aberrations[i].CN
+            ale = CN.get_CN_Ale()
+            pos1, pos2 = CN.get_CN_position()
+            chr_ = CN.get_CN_chromosome()
+            if CN.CN_Del == 0:
+                # amplification
+                amp_num = CN.get_CN_amp_num()
+                #print amp_num
+                #print ret_ref[ale][chr_][pos1:pos2]
+                str_amp = amp_num * ret_ref[ale][chr_][pos1:pos2]
+                # a bug found here. If str_amp = 0, the first string should be up to pos2, so that nothing is lost.
+                ret_ref[ale][chr_] = ret_ref[ale][chr_][:pos2] + str_amp + ret_ref[ale][chr_][pos2:]
+            else:
+                # deletion
+                ret_ref[ale][chr_] = ret_ref[ale][chr_][:pos1] + ret_ref[ale][chr_][pos2:]
+    return ret_ref
+
 
 # read reference from a file to an array
 def read_ref(ref):

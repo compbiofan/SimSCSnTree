@@ -12,10 +12,15 @@ from gen_readcount import get_beta_dist
 from Gen_Ref_Fa import make_fa 
 from Gen_Ref_Fa import init_ref
 
+# fixed bulk uniformity
+x0_bulk = 0.5 
+y0_bulk = 0.38 
+
 # see how many processors I have
 #NUM_OF_PROCESSES = mp.cpu_count()
 
-def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level):
+# for both bulk and single-cell sampling purposes
+def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, bulk_or_sc):
     this_leaf_index = leaf_index[index]
     print(all_chrlen)
     print("####" + str(index))
@@ -25,6 +30,10 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
         # sequence the reads using wgsim
         #out_fq_prefix = "leaf" + str(this_leaf_index) + "_cell" + str(cell_i) + "_allele" + str(i)
         out_fq_prefix = "level" + original_level + "_node" + str(this_leaf_index) + "_cell" + str(cell_i) + "_allele" + str(i)
+
+        if bulk_or_sc == "bulk":
+            out_fq_prefix = "level" + original_level + "_node" + str(this_leaf_index) + "_allele" + str(i)
+
         out_fq1 = dir + "/" + out_fq_prefix + "_1.fq"
         out_fq2 = dir + "/" + out_fq_prefix + "_2.fq"
         args = "samtools faidx " + fa_f
@@ -66,17 +75,6 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
                 # check N's
                 N_true = check_Ns(tmp_fa_file)
 
-                #popen = subprocess.Popen(args, shell=False)
-                # stdout=subprocess.PIPE, shell=True)
-                #popen.wait()
-                #popen.terminate()
-                #output = popen.stdout.read()
-                #print output
-
-                # sequence the reads using wgsim
-                #out_fq_prefix = "leaf" + str(this_leaf_index) + "_allele" + str(i) + "_chr" + str(j) + "_" + str(start) + "_" + str(end)
-                #out_fq1 = out_fq_prefix + "_1.fq"
-                #out_fq2 = out_fq_prefix + "_2.fq"
                 if N_true == 1:
                     args = wgsim_dir + "wgsim -h -N " + str(this_readcount) + " -1 " + str(l) + " -2 " + str(l) + " " + tmp_fa_file + " " + out_fq1 + " " + out_fq2
                     print(args)
@@ -97,10 +95,10 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
                 #output = popen.stdout.read()
                 #print output
                 #popen.terminate()
-    print "Done with node " + str(this_leaf_index) + " cell " + str(cell_i)
-
-# levels is an array with the strings, with possibly negative values
-def process_levels(levels):
+    if bulk_or_sc == "bulk":
+        print("Done with node " + str(this_leaf_index) + " for bulk sequencing. ")
+    else:
+        print("Done with node " + str(this_leaf_index) + " cell " + str(cell_i))
 
     
 if len(sys.argv) <= 1:
@@ -142,6 +140,8 @@ if len(sys.argv) <= 1:
         -Y (--leaf-index-range) For parallele job submission. >= min, < max leaf index will be processed. min.max (default: -1)
         -I (--leaf-ID-range) For parallele job submission. >= min, < max leaf ID will be processed. min.max (default: -1). When both -Y and -I are -1, all leaves will be processed.
         -L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify.  
+        -U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. 	
+        -V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30) 	
         """)
     sys.exit(0)
 
@@ -188,6 +188,8 @@ parser.add_argument('-J', '--amp-num-geo-par', default=1)
 parser.add_argument('-Y', '--leaf-index-range', default="-1")
 parser.add_argument('-I', '--leaf-ID-range', default="-1")
 parser.add_argument('-L', '--levels', default="-1")
+parser.add_argument('-U', '--bulk-levels', default="NA")
+parser.add_argument('-V', '--cov-bulk', default="30")
 
 
 args = parser.parse_args()
@@ -244,6 +246,10 @@ if leaf_ID_range != "-1":
 # levels for tree inferencer and longitudinal study
 # process level so that the negative ones are turned to positive, the ones over the deepest level will be reported, and all levels will be sorted in a numerical increasing order
 levels = args.levels.split(";")
+bulk_levels = []
+if args.bulk_levels != "NA":
+    bulk_levels = args.bulk_levels.split(";")
+    cov_bulk = int(args.cov_bulk)
 
 if skip == 0: 
     if not os.path.exists(dir):
@@ -274,12 +280,14 @@ def check_Ns(file):
 # Step 1. generate a phylogentic tree that has copy number alterations on branches.
 # Now all CNs are in tree, not generating fa or remember it in the tree nodes.
 if skip == 0:
-    [level_chrlens, level_indices, leaf_chrlen, leaf_index, chr_name_array, tree] = gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
-    numpy.save(save_prefix + ".leaf_chrlen.npy", leaf_chrlen)
-    numpy.save(save_prefix + ".leaf_index.npy", leaf_index)
-    numpy.save(save_prefix + ".level_chrlen.npy", level_chrlens)
-    numpy.save(save_prefix + ".level_index.npy", level_indices)
-    numpy.save(save_prefix + ".chr_name_array.npy", chr_name_array)
+    [tree, tree_elements] = gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
+    #[level_chrlens, level_indices, chr_name_array, tree] = gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
+    numpy.save(save_prefix + ".tree_elements.npy", tree_elements)
+    #numpy.save(save_prefix + ".leaf_chrlen.npy", leaf_chrlen)
+    #numpy.save(save_prefix + ".leaf_index.npy", leaf_index)
+    #numpy.save(save_prefix + ".level_chrlen.npy", level_chrlens)
+    #numpy.save(save_prefix + ".level_index.npy", level_indices)
+    #numpy.save(save_prefix + ".chr_name_array.npy", chr_name_array)
     # save the tree for parallele job submission afterwards
     numpy.save(save_prefix + ".tree.npy", tree)
     #numpy.save(save_prefix + ".ref.npy", ref)
@@ -292,24 +300,29 @@ if skip == 0:
 if skip == 1:
     print("Skip the first step. Reading ")
     #abs_path = os.getcwd()
-    leaf_chrlen_f = save_prefix + ".leaf_chrlen.npy"
+    tree_elements_f = save_prefix + ".tree_elements.npy"
+    #leaf_chrlen_f = save_prefix + ".leaf_chrlen.npy"
     # level chrlen, instead of having only the chrlen on the leaves, now also record the chrlen on each level
-    level_chrlen_f = save_prefix = ".level_chrlen.npy"
-    leaf_index_f = save_prefix + ".leaf_index.npy"
+    #level_chrlen_f = save_prefix = ".level_chrlen.npy"
+    #leaf_index_f = save_prefix + ".leaf_index.npy"
     # each level leads to the node indices on this level, dict: level (1 for the first tumor cell) -> node indices separated by semi-colon
-    level_index_f = save_prefix + ".level_index.npy"
-    chr_name_array_f = save_prefix + ".chr_name_array.npy"
+    #level_index_f = save_prefix + ".level_index.npy"
+    #chr_name_array_f = save_prefix + ".chr_name_array.npy"
     tree_f = save_prefix + ".tree.npy"
     #ref_f = save_prefix + ".ref.npy"
-    leaf_chrlen = numpy.load(leaf_chrlen_f)
+    #leaf_chrlen = numpy.load(leaf_chrlen_f)
     # record the chrlen for each level, dict: level (1 for the first tumor cell) -> array with chrlen at this level
-    level_chrlens = numpy.load(level_chrlen_f)
-    leaf_index = numpy.load(leaf_index_f)
-    level_indices = numpy.load(level_index_f)
-    chr_name_array = numpy.load(chr_name_array_f)
+    #level_chrlens = numpy.load(level_chrlen_f)
+    #leaf_index = numpy.load(leaf_index_f)
+    #level_indices = numpy.load(level_index_f)
+    #chr_name_array = numpy.load(chr_name_array_f)
+    tree_elements = numpy.load(tree_elements_f)
     tree = numpy.load(tree_f)
     # depth is the level where the leaves are 
-    depth = get_depth(tree)
+    depth = tree_elements.get_depth()
+    level_chrlens = tree_elements.level_chrlens
+    level_indice = tree_elements.level_indice
+    chr_name_array = tree_elements.chr_name_array
     [ref, tmp_chr_name, tmp_len_chr] = init_ref(template_ref)
     #ref = numpy.load(ref_f)
     #print(leaf_chrlen_f)
@@ -317,12 +330,55 @@ if skip == 1:
     #print(chr_name_array_f)
 
     # make it either making a tree, or generating the leaves
+    # now alpha and beta are redefined and are for the read coverage uniformity
     [Alpha, Beta] = get_beta_dist(x0, y0)
-    #leaf_index_ = 0
+
+    [Alpha_bulk, Beta_bulk] = get_beta_dist(x0_bulk, y0_bulk)
+    print("Bulk sequencing: Alpha = " + str(Alpha_bulk) + ", Beta = " + str(Beta_bulk))
+    # start sequencing bulk 
+    for bulk_level in bulk_levels:
+        index = 0
+        original_level = bulk_level
+        bulk_level = int(bulk_level)
+        if bulk_level < 0:
+            bulk_level = depth + bulk_level + 1
+        if bulk_level not in level_chrlens:
+            sys.exit("Warning: level " + original_level + " is out of range. Please specify a small -K, and use the -G to constrain your specified levels. ") 
+        level_chrlen = level_chrlens[bulk_level]
+        level_index = level_indice[bulk_level]
+        processes = []
+        fq_file_names = []
+        # the parallel computing is on each node on the same level
+        for all_chrlen in level_chrlen:
+            make_fa_wABs(level_index[index], tree, ref, chr_name_array, fa_prefix)
+            perc = tree[level_index[index]].perc
+            ref_files = fa_prefix + str(level_index[index]) + "_*.fa"
+            processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha_bulk, Beta_bulk, x0_bulk, y0_bulk, cov_bulk * perc, l, window_size, u, chr_name_array, -1, original_level, "bulk")))
+            index = index + 1
+            # when all nodes at this level is sampled, merge them into one big fastq file as this is bulk sequencing
+            fq_file_name1 = "level" + original_level + "_node" + level_index[index] + "_allele1.fq" 
+            fq_file_names.append(fq_file_name1)
+            fq_file_name2 = "level" + original_level + "_node" + level_index[index] + "_allele2.fq" 
+            fq_file_names.append(fq_file_name2)
+
+        
+        bulk_fq = "level" + original_level + "_bulk.fq"
+        for p in processes:
+            p.start()
+        
+        for p in processes:
+            p.join()
+
+        for f in fq_file_names:
+            os.system("cat " + f + " >> " + bulk_fq) 
+
+        print("Done with generating bulk for level " + original_level)
+
     print("Alpha = %.2f, Beta = %.2f", Alpha, Beta)
     print("Number of processes: " + str(NUM_OF_PROCESSES))
     # assume for each level, the total number of cells remain the same
     print("Number of cells for each level: " + str(n))
+
     # Serial for each level and each node. For each node, make it parallel. 
     for level in levels:
         index = 0
@@ -337,7 +393,7 @@ if skip == 1:
             sys.exit("Warning: level " + original_level + " is out of range. Please specify a small -K, and use the -G to constrain your specified levels. ") 
 
         level_chrlen = level_chrlens[level]
-        level_index = level_indices[level]
+        level_index = level_indice[level]
         for all_chrlen in level_chrlen:
             # each node at this level
     #for all_chrlen in leaf_chrlen:
@@ -351,26 +407,8 @@ if skip == 1:
             #if leaf_index_range != "-1" and index < index_max and index >= index_min or leaf_ID_range != "-1" and leaf_index_ < leaf_index_max and leaf_index_ >= leaf_index_min or leaf_index_range == "-1" and leaf_ID_range == "-1": 
             if leaf_index_range != "-1" and index < index_max and index >= index_min or leaf_ID_range != "-1" and level_index_ < leaf_index_max and level_index_ >= leaf_index_min or leaf_index_range == "-1" and leaf_ID_range == "-1": 
                 #make_fa(leaf_index[index], tree, ref, chr_name_array, fa_prefix)
-                make_fa(level_index[index], tree, ref, chr_name_array, fa_prefix)
+                make_fa_wABs(level_index[index], tree, ref, chr_name_array, fa_prefix)
                 
-                #if index % NUM_OF_PROCESSES == 0 and index != 0:
-                
-                    # Run processes
-                    #for p in processes:
-                    #    p.start()
-                    
-                    # Exit the completed processes
-                    #for p in processes:
-                    #    p.join()
-                    
-                    # clean for the next batch
-                    #processes = []
-            
-                    # clean the temp fa files
-                    #args = "rm " + fa_prefix + "*_*_*_*_*.fa"
-                    #popen = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
-                    #popen.wait()
-            
                 # since this is a subclone, get the percentage of it
                 #perc = tree[leaf_index[index]].perc
                 perc = tree[level_index[index]].perc
@@ -394,7 +432,7 @@ if skip == 1:
     
                 if cell_i_last:
                     #print "Done with the whole clone " + str(leaf_index[index]) + ", will remove it. "
-                    print "Done with the whole clone " + str(level_index[index]) + ", will remove it. "
+                    print("Done with the whole clone " + str(level_index[index]) + ", will remove it. ")
         
                     #ref_files = fa_prefix + str(leaf_index[index]) + "_*.fa"
                     ref_files = fa_prefix + str(level_index[index]) + "_*.fa"

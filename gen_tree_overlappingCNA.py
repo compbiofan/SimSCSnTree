@@ -18,7 +18,7 @@ import re
 import copy
 from anytree.dotexport import RenderTreeGraph
 from CN import CN
-from Gen_Ref_Fa import gen_ref, init_ref, write_ref, read_ref
+from Gen_Ref_Fa import gen_ref, init_ref, write_ref, read_ref, gen_ref_from_tree
 
 nuc_array = ['A', 'B', 'C', 'D']
 # for test purpose
@@ -112,9 +112,9 @@ class MyNode(Node):
         self.cn_detail=[]
         self.parentID = -1
         self.true_CNs = []
-        self.depth = -1
+        self.depth_ = -1
         self.perc = -1
-        self.is_leaf = True
+        self.if_leaf = True
         self.aberrations = []
     def getTuple(self):
         return self.tuple
@@ -123,14 +123,14 @@ class MyNode(Node):
     def getID(self):
         return self.id
     def getDepth(self):
-        return self.depth
+        return self.depth_
     def getPerc(self):
         return self.perc
     def combine_aberrations(self):
-        for i in cn:
+        for i in self.cn:
             AB = MyAberration("CNA", i, "NA")
             self.aberrations.append(AB)
-        for i in snvs:
+        for i in self.snvs:
             AB = MyAberration("SNV", "NA", i)
             self.aberrations.append(AB)
         
@@ -318,7 +318,7 @@ def add_CN(chrlen, cn_num, del_rate, min_cn_size, exp_theta, amp_p, corres, CN_L
 # this is a function for getting the true CNA on reference coordinate
 def compare_summary(summary, old_summary, chr, refchr_len):
     n = summary[chr]
-    if chr not in old_summary.keys():
+    if chr not in list(old_summary.keys()):
         o = {}
     else:
         o = old_summary[chr]
@@ -328,26 +328,26 @@ def compare_summary(summary, old_summary, chr, refchr_len):
     # normal in the current summary (it may go back to 2)
     n_normal = get_normal_regions_from_summary(summary, chr, refchr_len)
 
-    for i in n.keys():
+    for i in list(n.keys()):
         # check if they are in old
-        if i in o.keys():
+        if i in list(o.keys()):
             # check if they are the same
             if n[i] != o[i]:
                 # this region is not the same
                 cn[i] = n[i] - o[i]
         else:
             # see if this region overlap with any region in old
-            for j in o.keys():
+            for j in list(o.keys()):
                 if if_overlap(i, j):
                     if n[i] != o[j]:
                         cn[overlap_interval(i, j)] = n[i] - o[j]
-            for j in o_normal.keys():
+            for j in list(o_normal.keys()):
                 if if_overlap(i, j):
                     cn[overlap_interval(i, j)] = n[i] - o_normal[j]
 
     # now look at the normal region in new summary
-    for i in n_normal.keys():
-        for j in o.keys():
+    for i in list(n_normal.keys()):
+        for j in list(o.keys()):
             # see if any overlap
             if if_overlap(i, j):
                 if o[j] != 2:
@@ -374,11 +374,11 @@ def combine_nb_cnas(cn, chr):
     new_chr = recover_chr(chr)
     cn_ = {}
     # switch to start -> string
-    for x in cn.keys():
+    for x in list(cn.keys()):
         y = int(float(x))
         cn_[y] = x
     # to avoid removing trailing zeros, add 1 at the end
-    for j in sorted(cn_.keys()):
+    for j in sorted(list(cn_.keys())):
         if p_j != -1 and not if_gapped(cn_[j], cn_[p_j]) and cn[cn_[j]] == cn[cn_[p_j]]:
             s1, e1 = cn_[j].split(".")
             e = e1
@@ -448,17 +448,17 @@ def get_normal_regions_from_summary(summary, chr, ref_len):
     p_j = "0.0"
     ret = {}
      
-    if chr in summary.keys() and len(summary[chr].keys()) > 0:
+    if chr in list(summary.keys()) and len(list(summary[chr].keys())) > 0:
         s_ = {}
-        for x in summary[chr].keys():
+        for x in list(summary[chr].keys()):
             y = int(float(x))
             s_[y] = x
 
-        if if_gapped(s_[sorted(s_.keys())[0]], p_j):
-            str_ = get_gap(p_j, s_[sorted(s_.keys())[0]])
+        if if_gapped(s_[sorted(list(s_.keys()))[0]], p_j):
+            str_ = get_gap(p_j, s_[sorted(list(s_.keys()))[0]])
             ret[str_] = 2
 
-        for j in sorted(s_.keys()):
+        for j in sorted(list(s_.keys())):
             if p_j != "0.1" and if_gapped(s_[j], p_j):
                 str_ = get_gap(p_j, s_[j])
                 ret[str_] = 2
@@ -492,7 +492,7 @@ def print_hash(hash_):
 # given a hash, break all overlapping keys into non-overlapping ones and preserve the value for each segment, key is in start.end
 def break_overlap(hash_):
     #bps = sorted(hash_)
-    bps = hash_.keys()
+    bps = list(hash_.keys())
     # hash that takes in the start or end breakpoint, with the value indicating the cn and status
     ret_hash = {}
     bp_hash = {}
@@ -522,7 +522,7 @@ def break_overlap(hash_):
             if j_s >= i_s and j_e <= i_e:
                 #key = float(j)
                 key = j
-                if key in ret_hash.keys():
+                if key in list(ret_hash.keys()):
                     ret_hash[key] = ret_hash[key] + cn
                 else:
                     ret_hash[key] = cn 
@@ -545,7 +545,7 @@ def get_cn_from_corres(corres, ref_len):
                 ref_e = ref_se[1]
                 key = str(ref_s) + "." + str(ref_e)
                 #key = float(key)
-                if key in hash_.keys():
+                if key in list(hash_.keys()):
                     hash_[key]= hash_[key] + 1
                 else:
                     hash_[key] = 1
@@ -598,7 +598,7 @@ def get_cn_summary_(cn_detail):
 
         # get the copy number for each pair, this will include those that are not CN, will filtered out later on
         ret_summary_ = {}
-        pair_bps = pair_bp.keys()
+        pair_bps = list(pair_bp.keys())
         pair_bps.sort(key=natural_keys) 
         for pair in pair_bps:
             pair_s, pair_e = pair.split(".")
@@ -664,7 +664,7 @@ def get_cn_summary(corres):
 
         # summarize this chromosome
         #bps = sorted(union_hash)
-        bps = union_hash.keys()
+        bps = list(union_hash.keys())
         bps.sort(key=natural_keys)
         prev_SorE = "NA"
         prev_prev_SorE = "NA"
@@ -750,7 +750,7 @@ def get_cn_detail(hash_, ref_len_):
     prev_e = -1
     rem_s = -1
     rem_e = -1
-    keys_ = hash_.keys()
+    keys_ = list(hash_.keys())
     keys_.sort(key=natural_keys)
     #for key in sorted(hash_):
     for key in keys_:
@@ -1155,7 +1155,7 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     
     # root is the node before node 0 in tree
     
-    root=MyNode("0: [0,1]")
+    root=MyNode("0")
     root.tuple=[0,1]
     ref_array, chr_name_array, chr_sz = init_ref(template_ref)
     tree_ele.chr_name_array = chr_name_array
@@ -1213,7 +1213,7 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     #Tree.append(MyNode(str(1)+":[0,"+"{0:.2f}".format(Bi[0])+"]"+","+"{0:.4f}".format(ti[0])))
     #Tree.append(MyNode(str(2)+":["+"{0:.2f}".format(Bi[0])+",1]"+","+"{0:.4f}".format(ti[1])))
 
-    Tree[0].is_leaf = False
+    Tree[0].if_leaf = False
 
     Tree.append(MyNode(str(1)))
     Tree.append(MyNode(str(2)))
@@ -1227,14 +1227,7 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     #print "Node 2:"
     #print Tree[2].chrlen
     
-    # update the reference and add SNV
-    tmp_ref = gen_ref_from_tree(1, Tree, ref_array)
-    Tree[1].snvs = add_SNV(Tree[1].chrlen, tmp_ref, snv_rate, Tree[1].edge_length)
-    Tree[1].combine_aberrations() 
-    tmp_ref = gen_ref_from_tree(2, Tree, ref_array)
-    Tree[2].snvs = add_SNV(Tree[2].chrlen, tmp_ref, snv_rate, Tree[2].edge_length)
-    Tree[2].combine_aberrations() 
-        
+       
     Tree[1].parent=Tree[0]
     Tree[2].parent=Tree[0]
     # set parent ID
@@ -1246,20 +1239,26 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     # set percentage
     Tree[1].perc = Bi[0]
     Tree[2].perc = 1 - Bi[0]
-    Tree[1].is_leaf = True
-    Tree[2].is_leaf = True
+    Tree[1].if_leaf = True
+    Tree[2].if_leaf = True
     # set depth
-    Tree[1].depth = 2
-    Tree[2].depth = 2
+    Tree[1].depth_ = 2
+    Tree[2].depth_ = 2
 
 
     Tree[1].tuple=[0,Bi[0]]
     Tree[2].tuple=[Bi[0],1]
     Tree[1].edge_length = ti[0]
     Tree[2].edge_length = ti[1]
-    #Tree[1].ref, Tree[1].snvs = add_SNV(Tree[1].chrlen, Tree[1].ref, snv_rate, Tree[1].edge_length)
-    #Tree[2].ref, Tree[2].snvs = add_SNV(Tree[2].chrlen, Tree[2].ref, snv_rate, Tree[2].edge_length)
-    
+
+    # update the reference and add SNV
+    tmp_ref = gen_ref_from_tree(1, Tree, ref_array)
+    Tree[1].snvs = add_SNV(Tree[1].chrlen, tmp_ref, snv_rate, Tree[1].edge_length)
+    Tree[1].combine_aberrations() 
+    tmp_ref = gen_ref_from_tree(2, Tree, ref_array)
+    Tree[2].snvs = add_SNV(Tree[2].chrlen, tmp_ref, snv_rate, Tree[2].edge_length)
+    Tree[2].combine_aberrations() 
+     
     node_number=2
     j=1
 
@@ -1281,12 +1280,12 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
         # it dyanmically changes the portion of each current leaf by how far it is from the bottom of the level (the closer, the more likely it will be hit)
         sum_ = 0
         for tree in Tree:
-            if tree.is_leaf and not is_in(Ui[j], tree.getTuple()):
+            if tree.if_leaf and not is_in(Ui[j], tree.getTuple()):
                 perc = tree.getPerc()
                 sum_ += perc
-            elif tree.is_leaf and is_in(Ui[j], tree.getTuple()) : # and (not tree.is_dead) :
+            elif tree.if_leaf and is_in(Ui[j], tree.getTuple()) : # and (not tree.is_dead) :
                 # expand on this clone
-                tree.is_leaf = False
+                tree.if_leaf = False
                 leaf_num += 1
                 # get the reference of this node, as it is a parent of the following two
                 this_id = tree.getID()
@@ -1302,24 +1301,24 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
                 Tree.append(MyNode(str(node_number)))
                 # add tree depth
                 depth = tree.getDepth() + 1
-                Tree[node_number - 1].depth = depth
-                Tree[node_number].depth = depth
+                Tree[node_number - 1].depth_ = depth
+                Tree[node_number].depth_ = depth
                 # determine the percentage from the Beta splitting and parents' percentage
                 perc = tree.getPerc()
                 multi = ( tree_D + depth ) / tree_D
                 sum_ += perc * multi
                 Tree[node_number - 1].perc = (perc * float(Bi[j])) * multi
                 Tree[node_number].perc = perc * (1 - float(Bi[j])) * multi
-                Tree[node_number - 1].is_leaf = True
-                Tree[node_number].is_leaf = True
+                Tree[node_number - 1].if_leaf = True
+                Tree[node_number].if_leaf = True
                 #Tree.append(MyNode(str(node_number-1)+":["+"{0:.4f}".format(a)+","+"{0:.4f}".format(middle)+"]"+","+"{0:.4f}".format(ti[node_number-1]), parent=tree))
                 #Tree.append(MyNode(str(node_number)+":["+"{0:.4f}".format(middle)+","+"{0:.4f}".format(b)+"]"+","+"{0:.4f}".format(ti[node_number]), parent=tree))
 
                 #The new intervals are assigned here
                 #Tree[node_number-1].tuple=[a,middle]
                 #Tree[node_number].tuple=[middle,b]
-                #Tree[node_number-1].edge_length = ti[node_number-1]
-                #Tree[node_number].edge_length = ti[node_number]
+                Tree[node_number-1].edge_length = ti[node_number-1]
+                Tree[node_number].edge_length = ti[node_number]
                 #add copy number
                 this_chrlen = tree.chrlen[:]
                 #print this_chrlen
@@ -1372,7 +1371,7 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
         # reset all ranges for leaf nodes
         prev = 0
         for tree in Tree:
-            if tree.is_leaf :
+            if tree.if_leaf :
                 perc = tree.perc
                 end = prev + perc / sum_
                 tree.setTuple(prev, end)

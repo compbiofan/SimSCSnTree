@@ -19,7 +19,7 @@ def gen_ref_from_tree(ID, tree, ref):
         # gather all CNs together
         for ab in tree[trace[j]].aberrations:
             AB.append(ab)
-    return gen_ref_wAberrations(ref, AB)
+    return gen_ref_wAberration(ref, AB)
 
 
 def make_fa(ID, tree, ref, chr_name_array, fa_prefix):

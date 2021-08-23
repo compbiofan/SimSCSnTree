@@ -12,9 +12,9 @@ def gen_ref_from_tree(ID, tree, ref):
     while visit != 0:
         visit = tree[visit].parentID
         trace.append(visit)
-    # now reverse the trace so that the CNV and SNVs can be applied from root to leaf
+    # now reverse the trace so that the CNV and SNVs can be applied from root to leaf (leaf exclded)
     AB = []
-    for i in range(len(trace)):
+    for i in range(len(trace) - 1):
         j = len(trace) - i - 1
         # gather all CNs together
         for ab in tree[trace[j]].aberrations:
@@ -54,7 +54,9 @@ def make_fa_wABs(ID, tree, ref, chr_name_array, fa_prefix):
     for i in range(len(trace)):
         j = len(trace) - i - 1
         # gather all aberrations
-        AB.append(tree[trace[j]].aberrations)
+        for k in range(len(tree[trace[j]].aberrations)):
+            AB.append(tree[trace[j]].aberrations[k])
+        #AB.append(tree[trace[j]].aberrations)
     new_ref = gen_ref_wAberration(ref, AB)
     write_ref(new_ref, chr_name_array, fa_f_prefix)
 
@@ -133,7 +135,8 @@ def gen_ref_wAberration(ref, aberrations):
     ret_ref = [row[:] for row in ref]
     # in the order of the aberrations
     for i in range(len(aberrations)):
-        if aberrations[i].type == "SNV":
+        print("Dealing with the " + str(i) + "th aberrations in gen_ref_wAberration")
+        if aberrations[i].ab_type == "SNV":
             SNV = aberrations[i].SNV
             ale = SNV.ale
             chr_ = SNV.chr
@@ -142,7 +145,7 @@ def gen_ref_wAberration(ref, aberrations):
             new_nuc = SNV.new_nuc
             ret_ref[ale][chr_] = ret_ref[ale][chr_][:pos] + new_nuc + ret_ref[ale][chr_][pos1:]
 
-        elif aberrations[i].type == "CNA": 
+        elif aberrations[i].ab_type == "CNA": 
             CN = aberrations[i].CN
             ale = CN.get_CN_Ale()
             pos1, pos2 = CN.get_CN_position()

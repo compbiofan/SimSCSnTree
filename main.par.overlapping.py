@@ -9,7 +9,7 @@ import multiprocessing as mp
 from gen_tree_overlappingCNA import gen_tree
 from gen_readcount import gen_readcount
 from gen_readcount import get_beta_dist
-from Gen_Ref_Fa import make_fa 
+from Gen_Ref_Fa import make_fa, make_fa_wABs 
 from Gen_Ref_Fa import init_ref
 
 # fixed bulk uniformity
@@ -142,11 +142,12 @@ if len(sys.argv) <= 1:
         -L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1) 
         -U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. 	
         -V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30) 	
+        -M (--single-cell-per-node)	If this is on, each node represents one cell and there is no clonality in the node. In this case tree_width will be the same as n (leaf num). 1 is on. (default: 0)
         """)
     sys.exit(0)
 
 parser = argparse.ArgumentParser(description='SCSim: A simulator for simulating cancer phylogenetic tree with copy number variations and single nucleotide variations for single cells and bulk sequencing.')
-parser.add_argument('-p', '--processors', default=8)
+parser.add_argument('-p', '--processors', default=4)
 parser.add_argument('-r', '--directory', default="test")
 parser.add_argument('-S', '--wgsim-dir', default="")
 parser.add_argument('-n', '--leaf-num', default=4)
@@ -190,6 +191,7 @@ parser.add_argument('-I', '--leaf-ID-range', default="-1")
 parser.add_argument('-L', '--levels', default="-1")
 parser.add_argument('-U', '--bulk-levels', default="NA")
 parser.add_argument('-V', '--cov-bulk', default="30")
+parser.add_argument('-M', '--single-cell-per-clone', default=0)
 
 
 args = parser.parse_args()
@@ -228,13 +230,19 @@ whole_amp = int(args.whole_amp)
 whole_amp_rate = float(args.whole_amp_rate)
 whole_amp_num = int(args.whole_amp_num)
 amp_num_geo_par = float(args.amp_num_geo_par)
+# for one cell per clone, specify leaf_index_range instead of leaf_ID_range
 leaf_index_range = args.leaf_index_range
+single_cell_per_clone = (int(args.single_cell_per_clone) == 1) 
+if single_cell_per_clone:
+    treeWidth = n
+
 index_min = 0
 index_max = 10000000
 if leaf_index_range != "-1":
     index_min, index_max = leaf_index_range.split(".")
     index_min = int(index_min)
     index_max = int(index_max)
+# leaf_ID_range is related with the level_index
 leaf_ID_range = args.leaf_ID_range
 leaf_index_min = 0
 leaf_index_max = 10000000
@@ -280,15 +288,17 @@ def check_Ns(file):
 # Step 1. generate a phylogentic tree that has copy number alterations on branches.
 # Now all CNs are in tree, not generating fa or remember it in the tree nodes.
 if skip == 0:
-    [tree, tree_elements] = gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
+    print("before generating tree:")
+    [tree, tree_elements_arr] = gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
     #[level_chrlens, level_indices, chr_name_array, tree] = gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
-    numpy.save(save_prefix + ".tree_elements.npy", tree_elements)
+    #numpy.save(save_prefix + ".tree_elements.npy", tree_elements)
     #numpy.save(save_prefix + ".leaf_chrlen.npy", leaf_chrlen)
     #numpy.save(save_prefix + ".leaf_index.npy", leaf_index)
     #numpy.save(save_prefix + ".level_chrlen.npy", level_chrlens)
     #numpy.save(save_prefix + ".level_index.npy", level_indices)
     #numpy.save(save_prefix + ".chr_name_array.npy", chr_name_array)
     # save the tree for parallele job submission afterwards
+    numpy.save(save_prefix + ".tree_elements.npy", tree_elements_arr)
     numpy.save(save_prefix + ".tree.npy", tree)
     #numpy.save(save_prefix + ".ref.npy", ref)
     print("Done with generating the tree. Save to npy. ")
@@ -316,10 +326,14 @@ if skip == 1:
     #leaf_index = numpy.load(leaf_index_f)
     #level_indices = numpy.load(level_index_f)
     #chr_name_array = numpy.load(chr_name_array_f)
-    tree_elements = numpy.load(tree_elements_f)
-    tree = numpy.load(tree_f)
+    tree_elements_arr = numpy.load(tree_elements_f, allow_pickle=True)
+    tree_elements = tree_elements_arr[0]
+    tree = numpy.load(tree_f, allow_pickle=True)
     # depth is the level where the leaves are 
-    depth = tree_elements.get_depth()
+    depth = tree_elements.tree_D
+    # max_depth is the level whre the leaves are, tree_D is tempoariraly defunct
+    max_depth = tree_elements.max_depth
+    #depth = tree_elements.get_depth()
     level_chrlens = tree_elements.level_chrlens
     level_indice = tree_elements.level_indice
     chr_name_array = tree_elements.chr_name_array
@@ -388,8 +402,9 @@ if skip == 1:
         level = int(level)
         if level < 0: 
             # -1 is for leaves, will transform it to leaf's level
-            level = depth + level + 1
-        if level not in level_chrlens:
+            level = max_depth + level + 1
+            print("Will sequence level " + str(level))
+        if len(level_chrlens[level]) == 0:
             sys.exit("Warning: level " + original_level + " is out of range. Please specify a small -K, and use the -G to constrain your specified levels. ") 
 
         level_chrlen = level_chrlens[level]
@@ -413,6 +428,9 @@ if skip == 1:
                 #perc = tree[leaf_index[index]].perc
                 perc = tree[level_index[index]].perc
                 cell_num = n * perc
+                # allowing not considering multiple cells in a clone (node in a tree), thus each node has only one cell
+                if single_cell_per_clone:
+                    cell_num = 1
                 #total_cell_num += cell_num
                 #TODO need to take care the difference of the added cell number and the total
                 cell_i_last = False
@@ -421,7 +439,7 @@ if skip == 1:
                         # for removing the fa file
                         cell_i_last = True
                     #processes.append(mp.Process(target=gen_reads, args=(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i)))
-                    processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level)))
+                    processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc")))
     
                 # clean the rest
                 for p in processes:

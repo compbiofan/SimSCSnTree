@@ -24,8 +24,8 @@ def get_pairwise_diff_matrix(tree):
     for i in range(len(leaves)):
         for j in range(len(leaves)):
             x = get_pairwise_diff(tree, leaves[i], leaves[j])
-            print str(x) + "\t",
-        print ""
+            print(str(x) + "\t", end="")
+        print("")
     
 
 # a new function added in Feb. 2020
@@ -73,13 +73,13 @@ def get_event_num(tree):
     for t in tree:
         ID = t.id
         cn_array = t.cn
-        print str(ID) + "\t" + str(len(cn_array)) + "\t" + str(t.is_leaf)
+        print(str(ID) + "\t" + str(len(cn_array)) + "\t" + str(t.is_leaf))
 
 
 def get_leaf(tree):
     for t in tree:
         if t.is_leaf:
-            print t.id
+            print(str(t.id))
 
 def get_leafid_array(tree):
     a = []
@@ -181,7 +181,7 @@ def retrieve_new_overlappingCNAs(segcopy_f, Tree):
             a = copy.deepcopy(l)
             a.append(str(i))
             a.append(str(p))
-            print "\t".join(a)
+            print("\t".join(a))
 
 # connect the CNA bins together, return an array with chr, start, end
 def combine_cnas(h):
@@ -285,7 +285,7 @@ def print_tree(tree):
         #else:
         decs = dec[ID]
         num = len(decs)
-        print str(ID) + "\t" + ";".join(children[ID]) + "\t" + str(num) + "\t" + ";".join(list(s[ID].keys())) + "\t" + ";".join(decs)
+        print(str(ID) + "\t" + ";".join(children[ID]) + "\t" + str(num) + "\t" + ";".join(list(s[ID].keys())) + "\t" + ";".join(decs))
 
 def get_summary(tree, select_leaf):
     for t in tree:
@@ -304,14 +304,14 @@ def get_summary(tree, select_leaf):
                     chr_ = "chrX"
                 if chr_ == "chr24":
                     chr_ = "chrY"
-                print "\t".join([chr_, str(pos_s), str(pos_e), str(cn), str(ID)]) 
+                print("\t".join([chr_, str(pos_s), str(pos_e), str(cn), str(ID)])) 
 
 def print_large_clusters(tree, leaf_only, size):
     d = get_descendants(tree, leaf_only, True, size)
     for i in d:
         if len(d[i]) != 0:
             y = [str(x) for x in d[i]]
-            print " ".join(y)
+            print(" ".join(y))
 
 def retrieve_new_CNAs(tree):
     for i in range(len(tree)):
@@ -321,7 +321,7 @@ def retrieve_new_CNAs(tree):
             for k in list(tCN.keys()):
                 chr, interval = k.split(":")
                 s, e = interval.split(".")
-                print "\t".join([chr, s, e, str(tCN[k]), str(i), str(t.parentID)]) 
+                print("\t".join([chr, s, e, str(tCN[k]), str(i), str(t.parentID)])) 
     return
         
 # for each node in the tree, find the descendants of it
@@ -386,7 +386,7 @@ def make_summary_func(tree, ref):
                     chr_ = "chrX"
                 if chr_ == "chr24":
                     chr_ = "chrY"
-                print "\t".join([chr_, str(pos_s), str(pos_e), str(cn), str(ID)]) 
+                print("\t".join([chr_, str(pos_s), str(pos_e), str(cn), str(ID)])) 
 
 
 parser = argparse.ArgumentParser(description='Read a tree and output specific items of it. ')
@@ -467,7 +467,7 @@ if printtree:
     print_tree(tree)
 
 if printnewick:
-    print print_newick(tree)
+    print(print_newick(tree))
 
 if printlargecluster:
     print_large_clusters(tree, True, cluster_size)

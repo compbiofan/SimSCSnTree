@@ -20,7 +20,7 @@ from anytree.dotexport import RenderTreeGraph
 from CN import CN
 from Gen_Ref_Fa import gen_ref, init_ref, write_ref, read_ref, gen_ref_from_tree
 
-nuc_array = ['A', 'B', 'C', 'D']
+nuc_array = ['A', 'C', 'G', 'T']
 # for test purpose
 random = 1
 cn_list1 = [0, 309, 1282, 381, 176, 1242, 13, 29, 631]
@@ -1343,6 +1343,8 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
                 Tree.append(MyNode(str(node_number-1)))
                 Tree.append(MyNode(str(node_number)))
                 # set parent id
+                Tree[node_number].parent=Tree[this_id]
+                Tree[node_number-1].parent=Tree[this_id]
                 Tree[node_number].parentID = this_id
                 Tree[node_number-1].parentID = this_id
                 # add tree depth

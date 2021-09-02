@@ -16,6 +16,23 @@ class mynode:
         self.parent = parent
         self.children = []
 
+# print all snvs if no node is specified
+def print_snvs(tree, cell):
+    print("\t".join(["chr", "pos", "ori_nuc", "new_nuc", "allele", "cell"]))
+    cells = []
+    if cell == "NA":
+        for i in range(len(tree)):
+            cells.append(i)
+    else:
+        array = re.split(r';', cell)
+        for i in array:
+            cells.append(int(i))
+    
+    for i in cells:
+        snv = tree[i].snvs
+        for s in snv:
+            print("\t".join([str(s.chr), str(s.ref_pos), s.ori_nuc, s.new_nuc, str(s.ale), str(i)]))
+    
 
 # a new function added in Feb. 2020
 # output a matrix, in which the entry of (i, j) represents the number of events between these two profiles (here assume i and j are both leaves)
@@ -73,18 +90,18 @@ def get_event_num(tree):
     for t in tree:
         ID = t.id
         cn_array = t.cn
-        print(str(ID) + "\t" + str(len(cn_array)) + "\t" + str(t.is_leaf))
+        print(str(ID) + "\t" + str(len(cn_array)) + "\t" + str(t.if_leaf))
 
 
 def get_leaf(tree):
     for t in tree:
-        if t.is_leaf:
+        if t.if_leaf:
             print(str(t.id))
 
 def get_leafid_array(tree):
     a = []
     for t in tree:
-        if t.is_leaf:
+        if t.if_leaf:
             a.append(t.id)
     return a
 
@@ -291,7 +308,7 @@ def get_summary(tree, select_leaf):
     for t in tree:
         ID = t.id
         if select_leaf:
-            if not t.is_leaf:
+            if not t.if_leaf:
                 continue
         summary = t.cn_summary
         for chr in summary:
@@ -334,7 +351,7 @@ def get_descendants(tree, leaf_only, cut_by_size, size):
     for t in tree[::-1]:
         ID = t.id
         if leaf_only:
-            if t.is_leaf:
+            if t.if_leaf:
                 d[ID] = [str(ID)]
             else:
                 d[ID] = []
@@ -405,6 +422,9 @@ parser.add_argument('-S', '--largeclustersize', default="8,10")
 parser.add_argument('-O', '--retrieveoverlapping', action='store_true')
 parser.add_argument('-F', '--segcopyf', default="NA")
 parser.add_argument('-o', '--retrievealloverlaps', action='store_true')
+parser.add_argument('-n', '--printsnvs', action='store_true')
+parser.add_argument('-x', '--printsnvsforcell', default="NA")
+
 
 args = parser.parse_args()
 if_leaf = args.leaf
@@ -422,6 +442,8 @@ cluster_size = args.largeclustersize
 retrieveoverlapping = args.retrieveoverlapping
 segcopy_f = args.segcopyf
 retrievealloverlaps = args.retrievealloverlaps
+printsnvs = args.printsnvs
+printsnvsforcell = args.printsnvsforcell
 
 # main starts here
 if npy_f == "": 
@@ -443,6 +465,8 @@ if npy_f == "":
         -O  (--retrieveoverlapping) Retrieve new overlapping CNAs for each cell (including internal nodes). 
         -F  (--segcopyf)    Segcopy file for retrieving new overlapping CNA. 
         -o  (--retrievealloverlaps)  Retrieve new overlapping CNAs, even for those occurring on the same edge from true_CNs in the tree. Output the new CNAs for each node compared with its parent node. 
+        -n  (--printsnvs)   Print SNVs for all cells.
+        -x  (--printsnvsforcell)    Print SNVs for a particular set of nodes separated by colon specified here. 
         """)
     sys.exit(0)
 
@@ -477,3 +501,9 @@ if retrieveoverlapping:
 
 if retrievealloverlaps:
     retrieve_new_CNAs(tree)
+
+if printsnvs:
+    print_snvs(tree, "NA")
+
+if printsnvsforcell != "NA":
+    print_snvs(tree, printsnvsforcell) 

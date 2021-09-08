@@ -1355,6 +1355,8 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
                 Tree[node_number].depth_ = depth
                 # determine the percentage from the Beta splitting and parents' percentage
                 perc = tree.getPerc()
+                #multi = 1
+                # percentage of the clone favors those with higher depth
                 multi = ( tree_D + depth ) / tree_D
                 sum_ += perc * multi
                 Tree[node_number - 1].perc = (perc * float(Bi[j])) * multi
@@ -1431,7 +1433,7 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
                 tree.setTuple(prev, end)
                 prev = end
                 # reset the percentages
-                tree.perc = perc
+                tree.perc = perc / sum_
 
     
         j+=1

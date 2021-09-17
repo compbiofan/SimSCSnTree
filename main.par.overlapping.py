@@ -137,8 +137,8 @@ if len(sys.argv) <= 1:
         -C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)
         -E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)
         -J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)
-        -Y (--leaf-index-range) For parallele job submission. >= min, < max leaf index will be processed. min.max (default: -1)
-        -I (--leaf-ID-range) For parallele job submission. >= min, < max leaf ID will be processed. min.max (default: -1). When both -Y and -I are -1, all leaves will be processed.
+        -Y (--leaf-index-range) For parallele job submission. >= min, < max leaf index will be processed. min.max. This counts leaf nodes from 0. (default: -1)
+        -I (--leaf-ID-range) For parallele job submission. >= min, < max leaf ID will be processed. min.max. This counts from root 0-based so that internal nodes sequencing can be parallelized. (default: -1). When both -Y and -I are -1, all leaves will be processed.
         -L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1) 
         -U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. 	
         -V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30) 	
@@ -418,6 +418,7 @@ if skip == 1:
         #TODO add a function here to retrieve the CN and apply to reference, and write to a fa file for the two alleles. This has been done.
             #leaf_index_ = leaf_index[index]
             # the index of the node obtained from level_index is w.r.t. the chrlen from level_chrlen
+            # this is the node id including interal nodes.
             level_index_ = level_index[index]
             #if leaf_index_range != "-1" and index < index_max and index >= index_min or leaf_ID_range != "-1" and leaf_index_ < leaf_index_max and leaf_index_ >= leaf_index_min or leaf_index_range == "-1" and leaf_ID_range == "-1": 
             if leaf_index_range != "-1" and index < index_max and index >= index_min or leaf_ID_range != "-1" and level_index_ < leaf_index_max and level_index_ >= leaf_index_min or leaf_index_range == "-1" and leaf_ID_range == "-1": 
@@ -427,7 +428,7 @@ if skip == 1:
                 # since this is a subclone, get the percentage of it
                 #perc = tree[leaf_index[index]].perc
                 perc = tree[level_index[index]].perc
-                cell_num = n * perc
+                cell_num = int(n) * perc
                 # allowing not considering multiple cells in a clone (node in a tree), thus each node has only one cell
                 if single_cell_per_clone:
                     cell_num = 1

@@ -175,13 +175,32 @@ The whole chromosome duplications are imputed in the trunk branch connecting the
 
 On a branch, the number of the SNV imputed follows a Poisson distribution, the mean of which equals to snv-rate (specified by -R) multiplied by branch length which is sampled from an exponential distribution with p=1.
 
--R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)
+         -R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)
 
 ## <a name="tree_structure"></a>Control of tree structure.
+
+The binary tree's branch splitting follows Beta-splitting model so that the splitting of the cells between the left and right branches for each split follows a Beta distribution, whose alpha and beta parameters are specified by -A (--Alpha) and -B (--Beta). 
+
+The splitting ends when the number of cells / subclones on the leaf level reaches -n (--cell-num). The tree witdth and depth can be controlled by Gaussian distributions, the mean and standard deviation of which are specified by -F (--treewidth), -H (--treewidthsigma), -G (--treedpeth) and -K (--treedepthsigma). 
+
+        -n (--cell-num)     Number of the cells. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. 
+        -B (--Beta)         The program uses the Beta-splitting model to generate the phylogenetic tree. Specify a value between [0, 1]. (default: 0.5)
+        -A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).
+        -F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)
+        -G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)
+        -H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
+        -K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
 
 ## <a name="read_fluctuation"></a>Control of read depth fluctuation.
 
 
+
+        -x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5) 
+        -y (--Lorenz-y)     The value on the y-axis of the Lorenz curve imitating the real coverage unevenness. x > y. The closer (x, y) to the diagonal, the better the coverage evenness. (default: 0.4) 
+        -v (--coverage)     The average coverage of the sequence. (default: 0.02)
+        -l (--readlen)      Read length for each read sequenced. (default: 35bp)
+        -w (--window-size)  Within a window, the coverage is according to a Gaussian distribution. Neighboring windows' read coverage is according to a Metropolis Hasting process. (default: 200000bp)
+        -u (--acceptance-rate)  The probability to accept a proposal in Metropolis Hasting. (default: 0.5)
 
     
 # <a name="examples"></a>Examples. 

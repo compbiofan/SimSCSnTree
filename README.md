@@ -151,7 +151,17 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
         
     ```python main.par.overlapping.py --help``` 
     
-## <a name="CNA"></a>Control of CNA size, rate and whole genome duplication.
+## <a name="CNA"></a>Control of CNA size and rate.
+
+On a branch, the number of the CNA imputed follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain 
+
+        -c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)
+        -d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)
+        -m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)
+        -e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)
+        -a (--amp-p)        The parameter for the Genometric distribution for the number of copies amplified. (default: 0.5)	
+
+## <a name="CNA"></a>Control of whole chromosome duplication.
 
 ## <a name="SNV"></a>Control of SNV rate.
 

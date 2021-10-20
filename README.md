@@ -85,7 +85,7 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
         -d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)
         -m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)
         -e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)
-        -a (--amp-p)        The parameter for the Genometric distribution for the number of copies amplified. (default: 0.5)	
+        -a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)	
        
     * Parameters controlling whole chromosome duplication on the branch to the root: -X, -W, -C, -E, -J
 
@@ -159,9 +159,11 @@ On a branch, the number of the CNA imputed follows a Poisson distribution, the m
         -d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)
         -m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)
         -e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)
-        -a (--amp-p)        The parameter for the Genometric distribution for the number of copies amplified. (default: 0.5)	
+        -a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)	
 
 ## <a name="CNA"></a>Control of whole chromosome duplication.
+
+The whole chromosome duplications are imputed in the trunk branch connecting the normal cell and the first tumor cell if -W (--whole-amp) is 1. For each chromosome, the probability that it is amplified equals -C (--whole-amp-rate) and the number of copies amplified follows a geometric distribution with p specified by -J (--amp-num-geo-par) multiplied by a number specified by -E (--whole-amp-num). 
 
         -X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)
         -W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1) 

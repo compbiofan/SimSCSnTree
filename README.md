@@ -10,9 +10,11 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Environment setup](#environment_setup)
 - [Usage of SCSim.](#usage_of_single_cell_simulator)
     * [General usage.](#general_usage)
-    * [Control of CNA size, rate and whole genome duplication](#CNA)
+    * [Control of CNA size and rate (#CNA)
+    * [Control of whole chromosmoe duplication](#WCD)
     * [Control of SNV rate](#SNV)
     * [Control of tree structure](#tree_structure)
+    * [Control of parameters for longitudinal study](#longitudinal)
     * [Control of read depth fluctuation](#read_fluctuation)
 - [Examples.](#examples)
     * [Simulating large dataset](#large_dataset)
@@ -161,7 +163,7 @@ On a branch, the number of the CNA imputed follows a Poisson distribution, the m
         -e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)
         -a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)	
 
-## <a name="CNA"></a>Control of whole chromosome duplication.
+## <a name="WCD"></a>Control of whole chromosome duplication.
 
 The whole chromosome duplications are imputed in the trunk branch connecting the normal cell and the first tumor cell if -W (--whole-amp) is 1. For each chromosome, the probability that it is amplified equals -C (--whole-amp-rate) and the number of copies amplified follows a geometric distribution with p specified by -J (--amp-num-geo-par) multiplied by a number specified by -E (--whole-amp-num). 
 
@@ -190,6 +192,11 @@ The splitting ends when the number of cells / subclones on the leaf level reache
         -G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)
         -H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
         -K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
+        
+## <a name="longitudinal"></a>Control of parameters for longitudinal study:
+
+        -L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1) 
+        -U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. 
 
 ## <a name="read_fluctuation"></a>Control of read depth fluctuation.
 

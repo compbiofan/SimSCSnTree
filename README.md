@@ -153,7 +153,7 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
     
 ## <a name="CNA"></a>Control of CNA size and rate.
 
-On a branch, the number of the CNA imputed follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain 
+On a branch, the number of the CNA imputed follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain follows a binomial distribution with p specified by -d (--del-rate). The CNA size follows an exponential distribution with p specified by -e (--exp-theta) plus a minimum CNA size specified by -m (--min-cn-size). If it is a copy number gain, the numbers of gain follows a Geometric distribution with p specified by -a (--amp-p). 
 
         -c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)
         -d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)
@@ -162,6 +162,12 @@ On a branch, the number of the CNA imputed follows a Poisson distribution, the m
         -a (--amp-p)        The parameter for the Genometric distribution for the number of copies amplified. (default: 0.5)	
 
 ## <a name="CNA"></a>Control of whole chromosome duplication.
+
+        -X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)
+        -W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1) 
+        -C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)
+        -E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)
+        -J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)
 
 ## <a name="SNV"></a>Control of SNV rate.
 

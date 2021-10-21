@@ -10,13 +10,22 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Environment setup](#environment_setup)
 - [Usage of SCSim.](#usage_of_single_cell_simulator)
     * [General usage.](#general_usage)
-    * [Control of CNA size and rate (#CNA)
+    * [Control of CNA size and rate] (#CNA)
     * [Control of whole chromosmoe duplication](#WCD)
     * [Control of SNV rate](#SNV)
     * [Control of tree structure](#tree_structure)
     * [Control of parameters for longitudinal study](#longitudinal)
     * [Control of read depth, fluctuation, read length, etc.](#read_fluctuation)
 - [Examples.](#examples)
+
+## <a name="eg_CNA_SNV"></a>Simulating both CNAs and SNVs on a tree. 
+
+## <a name="eg_tree_structure"></a>Simulating a tree with specific width, depth and cell number on the leaf. 
+
+## <a name="eg_clone"></a>Simulating clones of cells. 
+
+## <a name="eg_longitudinal"></a>Simulating multiple levels of data for longitudinal study. 
+
     * [Simulating large dataset](#large_dataset)
     * [Simulating reads with different ploidies](#ploidies)
     * [Simulating reads with different levels of fluctuation](#fluctuations)
@@ -217,6 +226,16 @@ SCSim divides the genome into nonoberlapping windows and samples the number of r
 
     
 # <a name="examples"></a>Examples. 
+
+## <a name="eg_CNA_SNV"></a>Simulating both CNAs and SNVs on a tree. 
+
+## <a name="eg_tree_structure"></a>Simulating a tree with specific width, depth and cell number on the leaf. 
+
+## <a name="eg_clone"></a>Simulating clones of cells. 
+
+## <a name="eg_longitudinal"></a>Simulating multiple levels of data for longitudinal study. 
+
+The following examples have also appeared in the previous version of SCSim, as published in "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020.
 
 ## <a name="large_dataset"></a>Simulating large dataset. 
 ##  

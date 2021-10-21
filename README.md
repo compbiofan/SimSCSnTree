@@ -15,7 +15,7 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Control of SNV rate](#SNV)
     * [Control of tree structure](#tree_structure)
     * [Control of parameters for longitudinal study](#longitudinal)
-    * [Control of read depth fluctuation](#read_fluctuation)
+    * [Control of read depth, fluctuation, read length, etc.](#read_fluctuation)
 - [Examples.](#examples)
     * [Simulating large dataset](#large_dataset)
     * [Simulating reads with different ploidies](#ploidies)
@@ -195,12 +195,18 @@ The splitting ends when the number of cells / subclones on the leaf level reache
         
 ## <a name="longitudinal"></a>Control of parameters for longitudinal study:
 
+It is possible to sample the reads at any level on the tree. If users are interested in the levels other than those on the leaf, i.e., if they are doing research on longitudinal study, -L (--levels) shall be specified such that all levels of interest shall be listed separated by semicolon. Similarly, if users are interested in the levels for bulk sequencing, use -U (--bulk-levels). If -U is not specified, then no sampling of the reads for bulk sequencing. 
+
         -L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1) 
         -U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. 
 
-## <a name="read_fluctuation"></a>Control of read depth fluctuation.
+## <a name="read_fluctuation"></a>Control of read depth, fluctuation, read length, etc.
 
+Read depth fluctuation is decided by -x (--Lorenz-x) and -y (--Lorenz-y) which represent the x and y values on the Lorenz curve that imitates the read coverage fluctuation. Suppose -x is fixed at 0.5, the lower the -y, the more uneven the read depth is. When -y is around 0.38, it resembles bulk sampling. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. 
 
+Users can change the coverage and read length of the sampled reads by tuning -v (--coverage) and -l (--readlen), respectively.
+
+SCSim divides the genome into nonoberlapping windows and samples the number of reads for each window. To determine window size, use -w (--window-size). The higher the -w, the less change of read depth on the genome. Starting from the first window which was given a fixed read number according to -v, the next window's read number is calculated by -x, -y and -u, whereas -u (--acceptance-rate) is the probability to accept a proposal in Metropolis Hasting so that the read coverage fluctuation over the whole genome reflects the expected Lorenz curve and the change of the number of reads between neighboring windows is restricted. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. The higher -u, the faster the program would run although the difference may not be noticeable. 
 
         -x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5) 
         -y (--Lorenz-y)     The value on the y-axis of the Lorenz curve imitating the real coverage unevenness. x > y. The closer (x, y) to the diagonal, the better the coverage evenness. (default: 0.4) 

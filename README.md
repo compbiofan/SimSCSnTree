@@ -32,13 +32,13 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
 
 
 # <a name="install_SCSim"></a>Installing SCSim.
-## <a name="software_requirements"></a>Software requirements ##
+## <a name="software_requirements"></a>Software requirements 
 
 1. Python 3 or up.
 
 2. Python modules: numpy, graphviz, anytree. 
 
-## <a name="environment_setup"></a>Environment setup ##
+## <a name="environment_setup"></a>Environment setup 
 
 Suppose $this_dir is the path of this package.
 
@@ -63,7 +63,7 @@ Suppose $this_dir is the path of this package.
     ```pip install anytree```
 
 # <a name="usage_of_single_cell_simulator"></a>Usage of SCSim.
-## <a name="general_usage"></a>General usage##
+## <a name="general_usage"></a>General usage
 
 SCSim has two steps. Step 1 generate a tree, each node of which contains a genome and each edge of which CNA(s) and/or SNV(s) are imputed. Step 2 samples reads from the genomes on the nodes selected. The following shows how each step works. 
 

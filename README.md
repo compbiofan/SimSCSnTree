@@ -26,7 +26,7 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Simulating reads with different ploidies](#ploidies)
     * [Simulating reads with different levels of fluctuation](#fluctuations)
 - [Miscellaneous](#Misc)
-    * [Mapping the reads to the reference] (#mapping)
+    * [Mapping the reads to the reference](#mapping)
     * [Making ground truth from the simulator for comparison](#ground_truth)
     * [Generating a newick formatted tree from .npy file in simulation](#newick)
 

@@ -1,6 +1,6 @@
 # SCSim
 
-Note: This repository contains scripts that were developed for "SCSim: a single-cell simulator for multi-purpose intra-tumor heterogeneity benchmark study". 
+Note: This repository contains scripts that were developed for "SCSim: a simulator of single-cell DNA sequencing data". 
 
 Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu) 
 

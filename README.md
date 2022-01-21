@@ -74,7 +74,9 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
 
 1. Generate the tree with CNVs/SNVs on the edges. This step generates two npy files, one for the tree (containing all information of CNVs/SNVs on the edges and the tree structure) and one for intermediate files (containing chromosome name, chromosome length and the index of the nodes). The .npy files will be used in step 2 for sampling reads. 
     
-    ```python main.par.overlapping.py``` followed by the following parameters grouped by their functions.  
+    ```python main.par.overlapping.py``` 
+    
+    followed by the following parameters grouped by their functions.  
 
     * Parameters controlling file IO:
 
@@ -123,7 +125,9 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
         
 2. Sample reads from specified genomes. 
 
-    ```python main.par.overlapping.py -k 1``` followed by the following parameters grouped by their functions.  
+    ```python main.par.overlapping.py -k 1``` 
+    
+    followed by the following parameters grouped by their functions.  
     
     * Parameter controlling which step to run:
 
@@ -230,7 +234,7 @@ SCSim divides the genome into nonoberlapping windows and samples the number of r
 
 ## <a name="eg_CNA_SNV"></a>Simulating both CNAs and SNVs on a tree (step 1). 
 
-      `python main.par.overlapping.py -r data -n 8 --treewidth 8 --treedepth 4 --treewidthsigma 0.001 --treedepthsigma 0.001 --template-ref ~/references/hg19/hg19.fa -m 2000000 -e 5000000 -R 2`
+      ```python main.par.overlapping.py -r data -n 8 --treewidth 8 --treedepth 4 --treewidthsigma 0.001 --treedepthsigma 0.001 --template-ref ~/references/hg19/hg19.fa -m 2000000 -e 5000000 -R 2```
       
       This command simulates a tree that has 8 leaf nodes (-n 8) with tree depth 4 (--treedepth 4) and width 8 (--treewidth 8) with both CNVs and SNVs. The SNV rate is set up to be 2 (-R 2), and the CNV size is set up to follow an exponential destribution with p=5Mbp (-e 5000000) plus a minimum size of 2Mbp (-m 2000000). Both alleles of the root node start from the hg19 reference file (--template-ref ~/references/hg19/hg19.fa). All .npy files will be stored in data folder (-r data) in the current directory. Remove data folder (or back it up to a different name) before running this command to avoid the error message.
 

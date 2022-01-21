@@ -190,7 +190,7 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
     
 For a complete list of options, type
         
-    ```python main.par.overlapping.py --help``` 
+        ```python main.par.overlapping.py --help``` 
     
 ## <a name="CNA"></a>Control of CNA size and rate.
 

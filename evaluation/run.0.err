@@ -1,0 +1,4 @@
+/home/xf2/.conda/envs/my_root/lib/python2.7/site-packages/numpy/lib/function_base.py:392: RuntimeWarning: Mean of empty slice.
+  avg = a.mean(axis)
+/home/xf2/.conda/envs/my_root/lib/python2.7/site-packages/numpy/core/_methods.py:85: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)

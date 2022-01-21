@@ -188,8 +188,7 @@ The whole chromosome duplications are imputed in the trunk branch connecting the
 -E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)
 ```
 
-```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)
-```
+```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)```
 
 ## <a name="SNV"></a>Control of SNV rate.
 

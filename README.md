@@ -94,40 +94,51 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
         
         ```-A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).```
         
-        ```-F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)
-        -G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)
-        -H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
-        -K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
-        ```
+        ```-F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)```
+        
+        ```-G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)```
+        
+        ```-H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
+        
+        ```-K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
         
     * Parameters controlling CNAs: -c, -d, -m, -e, -a
 
-        -c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)
-        -d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)
-        -m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)
-        -e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)
-        -a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)	
+        ```-c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)```
+        
+        ```-d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)```
+        
+        ```-m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)```
+        
+        ```-e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)```
+        
+        ```-a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)```
        
     * Parameters controlling whole chromosome duplication on the branch to the root: -X, -W, -C, -E, -J
 
-        -X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)
-        -W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1) 
-        -C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)
-        -E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)
-        -J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)
+        ```-X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)```
+        
+        ```-W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1)```
+        
+        ```-C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)```
+        
+        ```-E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)```
+        
+        ```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)```
     
     * Parameters controlling SNVS: -R
 
-        -R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)
+        ```-R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)```
         
     * Parameters controlling bulk sequencing:
 
-        -U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. 
+        ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
         
     * Parameters for longitudinal study:
 
-        -L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1) 
-        -U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. 
+        ```-L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1)```
+        
+        ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
         
 2. Sample reads from specified genomes. 
 
@@ -137,38 +148,45 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
     
     * Parameter controlling which step to run:
 
-        -k (--skip-first-step)  If the alleles for all nodes have been made, the step can be skipped. Make it 1 then. (default: 0)
+        ```-k (--skip-first-step)  If the alleles for all nodes have been made, the step can be skipped. Make it 1 then. (default: 0)```
         
     * Parameters for IO:
 
-        -f (--fa-prefix)    The prefix of the alleles and read names. (default: ref)
+        ```-f (--fa-prefix)    The prefix of the alleles and read names. (default: ref)```
         
     * Parameter specifying which read simulator to use:
 
-        -S (--wgsim-dir)    The directory of the binary of wgsim. It is in the same folder of this main.py. (need to specify) 
+        ```-S (--wgsim-dir)    The directory of the binary of wgsim. It is in the same folder of this main.py. (need to specify)```
         
     * Parameters controlling read depth fluctuation:
 
-        -x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5) 
-        -y (--Lorenz-y)     The value on the y-axis of the Lorenz curve imitating the real coverage unevenness. x > y. The closer (x, y) to the diagonal, the better the coverage evenness. (default: 0.4) 
-        -v (--coverage)     The average coverage of the sequence. (default: 0.02)
-        -l (--readlen)      Read length for each read sequenced. (default: 35bp)
-        -w (--window-size)  Within a window, the coverage is according to a Gaussian distribution. Neighboring windows' read coverage is according to a Metropolis Hasting process. (default: 200000bp)
-        -u (--acceptance-rate)  The probability to accept a proposal in Metropolis Hasting. (default: 0.5)
+        ```-x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5)```
+        
+        ```-y (--Lorenz-y)     The value on the y-axis of the Lorenz curve imitating the real coverage unevenness. x > y. The closer (x, y) to the diagonal, the better the coverage evenness. (default: 0.4)```
+        
+        ```-v (--coverage)     The average coverage of the sequence. (default: 0.02)```
+        
+        ```-l (--readlen)      Read length for each read sequenced. (default: 35bp)```
+        
+        ```-w (--window-size)  Within a window, the coverage is according to a Gaussian distribution. Neighboring windows' read coverage is according to a Metropolis Hasting process. (default: 200000bp)```
+        
+        ```-u (--acceptance-rate)  The probability to accept a proposal in Metropolis Hasting. (default: 0.5)```
     
     * Parameters controlling bulk sequencing:
     
-        -V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30) 
+        ```-V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30)```
     
     * Parameters for parallel job submissions:
 
-        -p (--processors)   Numbers of processors available.
-        -Y (--leaf-index-range) For parallele job submission. >= min, < max leaf index will be processed. min.max. This counts leaf nodes from 0. (default: -1)
-        -I (--leaf-ID-range) For parallele job submission. >= min, < max leaf ID will be processed. min.max. This counts from root 0-based so that internal nodes sequencing can be parallelized. (default: -1). When both -Y and -I are -1, all leaves will be processed.
+        ```-p (--processors)   Numbers of processors available.```
+        
+        ```-Y (--leaf-index-range) For parallele job submission. >= min, < max leaf index will be processed. min.max. This counts leaf nodes from 0. (default: -1)```
+        
+        ```-I (--leaf-ID-range) For parallele job submission. >= min, < max leaf ID will be processed. min.max. This counts from root 0-based so that internal nodes sequencing can be parallelized. (default: -1). When both -Y and -I are -1, all leaves will be processed.```
         
     * Parameters for clonality study:  
           	
-        -M (--single-cell-per-node)	If this is on, each node represents one cell and there is no clonality in the node. In this case tree_width will be the same as n (leaf num). 1 is on. (default: 0)
+        ```-M (--single-cell-per-node)	If this is on, each node represents one cell and there is no clonality in the node. In this case tree_width will be the same as n (leaf num). 1 is on. (default: 0)```
     
     For a complete list of options, type
         
@@ -178,29 +196,35 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
 
 On a branch, the number of the CNA imputed follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain follows a binomial distribution with p specified by -d (--del-rate). The CNA size follows an exponential distribution with p specified by -e (--exp-theta) plus a minimum CNA size specified by -m (--min-cn-size). If it is a copy number gain, the numbers of gain follows a Geometric distribution with p specified by -a (--amp-p). 
 
-        -c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)
-        -d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)
-        -m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)
-        -e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)
-        -a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)	
+        ```-c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)```
+        
+        ```-d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)```
+        
+        ```-m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)```
+        
+        ```-e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)```
+        
+        ```-a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)```
 
 ## <a name="WCD"></a>Control of whole chromosome duplication.
 
 The whole chromosome duplications are imputed in the trunk branch connecting the normal cell and the first tumor cell if -W (--whole-amp) is 1. For each chromosome, the probability that it is amplified equals -C (--whole-amp-rate) and the number of copies amplified follows a geometric distribution with p specified by -J (--amp-num-geo-par) multiplied by a number specified by -E (--whole-amp-num). 
 
-```-X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)
--W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1)
--C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)
--E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)
-```
-
-```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)```
+        ```-X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)```
+        
+        ```-W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1)```
+        
+        ```-C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)```
+        
+        ```-E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)```
+        
+        ```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)```
 
 ## <a name="SNV"></a>Control of SNV rate.
 
 On a branch, the number of the SNV imputed follows a Poisson distribution, the mean of which equals to snv-rate (specified by -R) multiplied by branch length which is sampled from an exponential distribution with p=1.
 
-         -R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)
+         ```-R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)```
 
 ## <a name="tree_structure"></a>Control of tree structure.
 
@@ -208,20 +232,27 @@ The binary tree's branch splitting follows Beta-splitting model so that the spli
 
 The splitting ends when the number of cells / subclones on the leaf level reaches -n (--cell-num). The tree witdth and depth can be controlled by Gaussian distributions, the mean and standard deviation of which are specified by -F (--treewidth), -H (--treewidthsigma), -G (--treedpeth) and -K (--treedepthsigma). 
 
-        -n (--cell-num)     Number of the cells. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. 
-        -B (--Beta)         The program uses the Beta-splitting model to generate the phylogenetic tree. Specify a value between [0, 1]. (default: 0.5)
-        -A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).
-        -F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)
-        -G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)
-        -H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
-        -K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
+        ```-n (--cell-num)     Number of the cells. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. ```
+        
+        ```-B (--Beta)         The program uses the Beta-splitting model to generate the phylogenetic tree. Specify a value between [0, 1]. (default: 0.5)```
+        
+        ```-A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).```
+        
+        ```-F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)```
+        
+        ```-G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)```
+        
+        ```-H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
+        
+        ```-K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
         
 ## <a name="longitudinal"></a>Control of parameters for longitudinal study:
 
 It is possible to sample the reads at any level on the tree. If users are interested in the levels other than those on the leaf, i.e., if they are doing research on longitudinal study, -L (--levels) shall be specified such that all levels of interest shall be listed separated by semicolon. Similarly, if users are interested in the levels for bulk sequencing, use -U (--bulk-levels). If -U is not specified, then no sampling of the reads for bulk sequencing. 
 
-        -L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1) 
-        -U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. 
+        ```-L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1) ```
+        
+        ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
 
 ## <a name="read_fluctuation"></a>Control of read depth, fluctuation, read length, etc.
 
@@ -231,18 +262,23 @@ Users can change the coverage and read length of the sampled reads by tuning -v 
 
 SCSim divides the genome into nonoberlapping windows and samples the number of reads for each window. To determine window size, use -w (--window-size). The higher the -w, the less change of read depth on the genome. Starting from the first window which was given a fixed read number according to -v, the next window's read number is calculated by -x, -y and -u, whereas -u (--acceptance-rate) is the probability to accept a proposal in Metropolis Hasting so that the read coverage fluctuation over the whole genome reflects the expected Lorenz curve and the change of the number of reads between neighboring windows is restricted. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. The higher -u, the faster the program would run although the difference may not be noticeable. 
 
-        -x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5) 
-        -y (--Lorenz-y)     The value on the y-axis of the Lorenz curve imitating the real coverage unevenness. x > y. The closer (x, y) to the diagonal, the better the coverage evenness. (default: 0.4) 
-        -v (--coverage)     The average coverage of the sequence. (default: 0.02)
-        -l (--readlen)      Read length for each read sequenced. (default: 35bp)
-        -w (--window-size)  Within a window, the coverage is according to a Gaussian distribution. Neighboring windows' read coverage is according to a Metropolis Hasting process. (default: 200000bp)
-        -u (--acceptance-rate)  The probability to accept a proposal in Metropolis Hasting. (default: 0.5)
+        ```-x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5) ```
+        
+        ```-y (--Lorenz-y)     The value on the y-axis of the Lorenz curve imitating the real coverage unevenness. x > y. The closer (x, y) to the diagonal, the better the coverage evenness. (default: 0.4) ```
+        
+        ```-v (--coverage)     The average coverage of the sequence. (default: 0.02)```
+        
+        ```-l (--readlen)      Read length for each read sequenced. (default: 35bp)```
+        
+        ```-w (--window-size)  Within a window, the coverage is according to a Gaussian distribution. Neighboring windows' read coverage is according to a Metropolis Hasting process. (default: 200000bp)```
+        
+        ```-u (--acceptance-rate)  The probability to accept a proposal in Metropolis Hasting. (default: 0.5)```
 
 # <a name="examples"></a>Examples. 
 
 ## <a name="eg_CNA_SNV"></a>Simulating both CNAs and SNVs on a tree (step 1). 
 
-```python main.par.overlapping.py -r data -n 8 --treewidth 8 --treedepth 4 --treewidthsigma 0.001 --treedepthsigma 0.001 --template-ref ~/references/hg19/hg19.fa -m 2000000 -e 5000000 -R 2```
+       ```python main.par.overlapping.py -r data -n 8 --treewidth 8 --treedepth 4 --treewidthsigma 0.001 --treedepthsigma 0.001 --template-ref ~/references/hg19/hg19.fa -m 2000000 -e 5000000 -R 2```
       
 This command simulates a tree that has 8 leaf nodes (-n 8) with tree depth 4 (--treedepth 4) and width 8 (--treewidth 8) with both CNVs and SNVs. The SNV rate is set up to be 2 (-R 2), and the CNV size is set up to follow an exponential destribution with p=5Mbp (-e 5000000) plus a minimum size of 2Mbp (-m 2000000). Both alleles of the root node start from the hg19 reference file (--template-ref ~/references/hg19/hg19.fa). All .npy files will be stored in data folder (-r data) in the current directory. Remove data folder (or back it up to a different name) before running this command to avoid the error message.
 
@@ -338,7 +374,7 @@ ${n} is the index of the leaf. Here we use "leaf" as the prefix of the file name
 
 The following step is the same for both simulated and real data.
 
-gen_bam/make_bam_from_fq.sh $dir/leaf${n} $hg19 $processor $mapping_qual_t 
+```gen_bam/make_bam_from_fq.sh $dir/leaf${n} $hg19 $processor $mapping_qual_t```
 
 This script requires installing bwa and samtools.
 

@@ -196,6 +196,7 @@ For a complete list of options, type
 
 On a branch, the number of the CNA imputed follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain follows a binomial distribution with p specified by -d (--del-rate). The CNA size follows an exponential distribution with p specified by -e (--exp-theta) plus a minimum CNA size specified by -m (--min-cn-size). If it is a copy number gain, the numbers of gain follows a Geometric distribution with p specified by -a (--amp-p). 
 
+
         ```-c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)```
         
         ```-d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)```

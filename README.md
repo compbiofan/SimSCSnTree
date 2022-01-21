@@ -36,7 +36,7 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
 
 1. Python 3 or up.
 
-2. Python modules: numpy, graphviz, anytree. 
+2. Python modules: numpy 1.18 or above, graphviz, anytree. 
 
 ## <a name="environment_setup"></a>Environment setup 
 

@@ -182,11 +182,11 @@ On a branch, the number of the CNA imputed follows a Poisson distribution, the m
 
 The whole chromosome duplications are imputed in the trunk branch connecting the normal cell and the first tumor cell if -W (--whole-amp) is 1. For each chromosome, the probability that it is amplified equals -C (--whole-amp-rate) and the number of copies amplified follows a geometric distribution with p specified by -J (--amp-num-geo-par) multiplied by a number specified by -E (--whole-amp-num). 
 
-        -X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)
-        -W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1) 
-        -C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)
-        -E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)
-        -J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)
+```-X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)
+-W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1) 
+-C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)
+-E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)
+-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)```
 
 ## <a name="SNV"></a>Control of SNV rate.
 

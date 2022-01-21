@@ -85,15 +85,15 @@ class tree_elements():
         # from an index to a chromosome name
         self.chr_name_array = []
         # # of nodes on the leaves
-        self.tree_W = -1
+        # self.tree_W = -1
         # depth of the tree
         self.tree_D = -1
         # max depth of the tree, where the leaves are (used as tree_D is temporarily defunct)
         self.max_depth = -1
     def get_depth(self):
         return self.tree_D
-    def get_width(self):
-        return self.tree_W
+    #def get_width(self):
+    #    return self.tree_W
 
 # tree is an array of MyNode
 class MyNode(Node):
@@ -1092,12 +1092,13 @@ def print_chr_len(chrlen_array):
 # whole_amp: if there's whole chromosome amplification
 # whole_amp_rate: rate of an allele on a chromosome chosen to be amplified. 
 # whole_amp_num: the mean of the number of copies added
-def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, Output, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par):
+#def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, Output, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par):
+def gen_tree(n, Beta, Alpha, Delta, treeDepth, treeDepthSigma, Output, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par):
     # decide the width and depth of the tree
-    tree_W = np.random.normal(loc=treeWidth, scale=treeWidthSigma, size=1)
+    #tree_W = np.random.normal(loc=treeWidth, scale=treeWidthSigma, size=1)
     tree_D = np.random.normal(loc=treeDepth, scale=treeDepthSigma, size=1)
     tree_ele = tree_elements()
-    tree_ele.tree_W = tree_W
+    #tree_ele.tree_W = tree_W
     tree_ele.tree_D = tree_D
     level_chrlens = dict()
     level_indice = dict()
@@ -1300,9 +1301,10 @@ def gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDe
     max_depth = 0
     
     print("Done with node 2")
-    print("tree_W = " + str(tree_W))
+    #print("tree_W = " + str(tree_W))
     # use the smaller one in between leaf num and tree width
-    while leaf_num < tree_W and leaf_num < n:
+    #while leaf_num < tree_W and leaf_num < n:
+    while leaf_num < n:
         print("leaf_num" + str(leaf_num))
         # until it reaches the width (the number of leaf clones in the tree)
 

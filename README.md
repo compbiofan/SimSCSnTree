@@ -1,15 +1,15 @@
-# SCSim
+# SimSCSnTree
 
-Note: This repository contains scripts that were developed for "SCSim: a simulator of single-cell DNA sequencing data". 
+Note: This repository contains scripts that were developed for "SimSCSnTree: a simulator of single-cell DNA sequencing data". 
 
 Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu) 
 
 ## Table of Contents
-- [Installing SCSim.](#install_SCSim)
+- [Installing SimSCSnTree.](#install_SimSCSnTree)
     * [Software requirements](#software_requirements)
     * [Data requirement](#data_requirement)
     * [Environment setup](#environment_setup)
-- [Usage of SCSim.](#usage_of_single_cell_simulator)
+- [Usage of SimSCSnTree.](#usage_of_single_cell_simulator)
     * [General usage.](#general_usage)
     * [Control of CNA size and rate](#CNA)
     * [Control of whole chromosmoe duplication](#WCD)
@@ -32,7 +32,7 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Generating a newick formatted tree from .npy file in simulation](#newick)
 
 
-# <a name="install_SCSim"></a>Installing SCSim.
+# <a name="install_SimSCSnTree"></a>Installing SimSCSnTree.
 ## <a name="software_requirements"></a>Software requirements 
 
 1. Python 3 or up.
@@ -67,10 +67,10 @@ Suppose $this_dir is the path of this package.
         
     ```pip install anytree```
 
-# <a name="usage_of_single_cell_simulator"></a>Usage of SCSim.
+# <a name="usage_of_single_cell_simulator"></a>Usage of SimSCSnTree.
 ## <a name="general_usage"></a>General usage
 
-SCSim has two steps. Step 1 generate a tree, each node of which contains a genome and each edge of which CNA(s) and/or SNV(s) are imputed. Step 2 samples reads from the genomes on the nodes selected. The following shows how each step works. 
+SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a genome and each edge of which CNA(s) and/or SNV(s) are imputed. Step 2 samples reads from the genomes on the nodes selected. The following shows how each step works. 
 
 1. Generate the tree with CNVs/SNVs on the edges. This step generates two npy files, one for the tree (containing all information of CNVs/SNVs on the edges and the tree structure) and one for intermediate files (containing chromosome name, chromosome length and the index of the nodes). The .npy files will be used in step 2 for sampling reads. 
     
@@ -260,7 +260,7 @@ Read depth fluctuation is decided by -x (--Lorenz-x) and -y (--Lorenz-y) which r
 
 Users can change the coverage and read length of the sampled reads by tuning -v (--coverage) and -l (--readlen), respectively.
 
-SCSim divides the genome into nonoberlapping windows and samples the number of reads for each window. To determine window size, use -w (--window-size). The higher the -w, the less change of read depth on the genome. Starting from the first window which was given a fixed read number according to -v, the next window's read number is calculated by -x, -y and -u, whereas -u (--acceptance-rate) is the probability to accept a proposal in Metropolis Hasting so that the read coverage fluctuation over the whole genome reflects the expected Lorenz curve and the change of the number of reads between neighboring windows is restricted. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. The higher -u, the faster the program would run although the difference may not be noticeable. 
+SimSCSnTree divides the genome into nonoberlapping windows and samples the number of reads for each window. To determine window size, use -w (--window-size). The higher the -w, the less change of read depth on the genome. Starting from the first window which was given a fixed read number according to -v, the next window's read number is calculated by -x, -y and -u, whereas -u (--acceptance-rate) is the probability to accept a proposal in Metropolis Hasting so that the read coverage fluctuation over the whole genome reflects the expected Lorenz curve and the change of the number of reads between neighboring windows is restricted. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. The higher -u, the faster the program would run although the difference may not be noticeable. 
 
 ```-x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5) ```
         
@@ -284,29 +284,29 @@ This command simulates a tree that has 8 leaf nodes (-n 8) with tree depth 4 (--
 
 ## <a name="eg_reads"></a>Simulating reads at the DOP-PCR read depth fluctuation (and bulk and MALBAC) (step 2). 
 
-```python main.par.overlapping.py -k 1 -r data -S ~/github/SCSim/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L -1 -Y 0.1 -v 0.01 -l 70```
+```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L -1 -Y 0.1 -v 0.01 -l 70```
       
-This command read the .npy files from data folder (-r data), run wgsim in ~/github/SCSim/wgsim-master/ (-S ~/github/SCSim/wgsim-master/) to simulate reads. Notice that the reference file needs to be specified (--template-ref ~/references/hg19/hg19.fa) as the .npy files from the first step does not store any fasta file for the sake of space. The reads are simulated only from the leaf level (-L -1) and each node at the leaf level represents only one cell (-M 1). Given -Y 0.1, this command simulates only the first leaf cell. 0 represents the start of the index of the cell of interest, and 1 is the end of the index of the cell of interest. Both start and end are zero-based. The cell at the end, 1 in this case, is not included in the sequence. If the first three cells are to be sequenced, specify with -Y 0.3. Notice --Lorenz-y is set to be 0.28, which is correponding to the read depth fluctuation from DOP-PCR. For reference, when --Lorenz-x is fixed to the default value (0.5), 0.38 corresponds to the bulk sequencing, and 0.27 corresponds to sequencing from MALBAC. The average read coverage is 0.01X (-v 0.01) and the read length is 70bp for each end. 
+This command read the .npy files from data folder (-r data), run wgsim in ~/github/SimSCSnTree/wgsim-master/ (-S ~/github/SimSCSnTree/wgsim-master/) to simulate reads. Notice that the reference file needs to be specified (--template-ref ~/references/hg19/hg19.fa) as the .npy files from the first step does not store any fasta file for the sake of space. The reads are simulated only from the leaf level (-L -1) and each node at the leaf level represents only one cell (-M 1). Given -Y 0.1, this command simulates only the first leaf cell. 0 represents the start of the index of the cell of interest, and 1 is the end of the index of the cell of interest. Both start and end are zero-based. The cell at the end, 1 in this case, is not included in the sequence. If the first three cells are to be sequenced, specify with -Y 0.3. Notice --Lorenz-y is set to be 0.28, which is correponding to the read depth fluctuation from DOP-PCR. For reference, when --Lorenz-x is fixed to the default value (0.5), 0.38 corresponds to the bulk sequencing, and 0.27 corresponds to sequencing from MALBAC. The average read coverage is 0.01X (-v 0.01) and the read length is 70bp for each end. 
 
 ## <a name="eg_longitudinal"></a>Simulating multiple levels of data for longitudinal study (step 2). 
 
-```python main.par.overlapping.py -k 1 -r data -S ~/github/SCSim/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L 1;2;3```
+```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L 1;2;3```
       
 The difference between this command and the previous one is that instead of sequencing the leaf level (-L -1), it sequences at the level of 1, 2 and 3 whereas 1 corresponds to the root. Use -I to parallelize the sequencing of the nodes like -Y for the leaf level. 
       
 ## <a name="eg_clone"></a>Simulating clones of cells (step 2). 
 
-```python main.par.overlapping.py -k 1 -r data -S ~/github/SCSim/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -n 100 -L -1 -Y 0.1```
+```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -n 100 -L -1 -Y 0.1```
       
 This command does not specify that a node is a single cell (no -M 1) and thus refers to a clonality study in which each node corresponds to multiple cells. The distribution of the cells is according to the Beta splitting model of the tree from 100 cells on the leaf (-n 100). Again, -L -1 -Y 0.1 specifies that the cells at the first leaf node will be sequenced. 
       
 ## <a name="eg_bulk"></a>Simulating bulk sequencing (step 2). 
 
-```python main.par.overlapping.py -k 1 -r data -S ~/github/SCSim/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L -1 -Y 0.1 -U -1 -V 20```
+```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L -1 -Y 0.1 -U -1 -V 20```
       
 This command, in addition to sequencing the cell on the first leaf node, sequences also the bulk sample on the leaf level (-U -1) at the coverage of 20X (-V 20). 
 
-The following examples have also appeared in the previous version of SCSim, as published in "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020.
+The following examples have also appeared in the previous version of SimSCSnTree, as published in "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020.
 
 ## <a name="large_dataset"></a>Simulating large dataset.   
 

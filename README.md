@@ -187,6 +187,7 @@ The whole chromosome duplications are imputed in the trunk branch connecting the
 -C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)
 -E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)
 ```
+
 ```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)
 ```
 

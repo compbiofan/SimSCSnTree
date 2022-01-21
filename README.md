@@ -7,6 +7,7 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
 ## Table of Contents
 - [Installing SCSim.](#install_SCSim)
     * [Software requirements](#software_requirements)
+    * [Data requirement](#data_requirement)
     * [Environment setup](#environment_setup)
 - [Usage of SCSim.](#usage_of_single_cell_simulator)
     * [General usage.](#general_usage)
@@ -37,6 +38,10 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
 1. Python 3 or up.
 
 2. Python modules: numpy 1.18 or above, graphviz, anytree. 
+
+## <a name="data_requirement"></a>Data requirement
+
+A reference file such as hg19.fa, which can be downloaded [here](https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz).
 
 ## <a name="environment_setup"></a>Environment setup 
 

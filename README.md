@@ -80,9 +80,9 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
 
     * Parameters controlling file IO:
 
-        -r (--directory)    Location of simulated data. The program will remove the whole directory if it already exists. Otherwise it will create one. (default: test)
-        -t (--template-ref) The reference file to sequence the reads. 
-        -o (--outfile)      The standard output file, will be saved in output folder, just give the file name. (default: std.out)
+        ```-r (--directory)    Location of simulated data. The program will remove the whole directory if it already exists. Otherwise it will create one. (default: test)```
+        ```-t (--template-ref) The reference file to sequence the reads. ```
+        ```-o (--outfile)      The standard output file, will be saved in output folder, just give the file name. (default: std.out)```
 
     * Parameters controlling tree structure: -n, -B, -A, -F, -G
     

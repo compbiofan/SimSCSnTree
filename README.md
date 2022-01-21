@@ -11,7 +11,7 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Environment setup](#environment_setup)
 - [Usage of SCSim.](#usage_of_single_cell_simulator)
     * [General usage.](#general_usage)
-    * [Control of CNA size and rate] (#CNA)
+    * [Control of CNA size and rate](#CNA)
     * [Control of whole chromosmoe duplication](#WCD)
     * [Control of SNV rate](#SNV)
     * [Control of tree structure](#tree_structure)
@@ -188,7 +188,7 @@ SCSim has two steps. Step 1 generate a tree, each node of which contains a genom
           	
         ```-M (--single-cell-per-node)	If this is on, each node represents one cell and there is no clonality in the node. In this case tree_width will be the same as n (leaf num). 1 is on. (default: 0)```
     
-    For a complete list of options, type
+For a complete list of options, type
         
     ```python main.par.overlapping.py --help``` 
     

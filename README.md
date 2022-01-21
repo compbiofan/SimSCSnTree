@@ -11,16 +11,12 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Environment setup](#environment_setup)
 - [Usage of SimSCSnTree.](#usage_of_single_cell_simulator)
     * [General usage.](#general_usage)
-    * [Control of CNA size and rate](#CNA)
-    * [Control of whole chromosmoe duplication](#WCD)
-    * [Control of SNV rate](#SNV)
-    * [Control of tree structure](#tree_structure)
-    * [Control of parameters for longitudinal study](#longitudinal)
+    * [Control of parameters for sampling internal nodes](#longitudinal)
     * [Control of read depth, fluctuation, read length, etc.](#read_fluctuation)
 - [Examples.](#examples)
     * [Simulating both CNAs and SNVs on a tree (step 1). ](#eg_CNA_SNV)
     * [Simulating reads at the DOP-PCR read depth fluctuation (and bulk and MALBAC) (step 2). ](#eg_reads)
-    * [Simulating multiple levels of data for longitudinal study (step 2). ](#eg_longitudinal)
+    * [Simulating multiple levels of internal nodes (step 2). ](#eg_longitudinal)
     * [Simulating clones of cells (step 2). ](#eg_clone)
     * [Simulating bulk sequencing (step 2). ](#eg_bulk)
     * [Simulating large dataset](#large_dataset)
@@ -78,7 +74,7 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
     
     followed by the following parameters grouped by their functions.  
 
-    * Parameters controlling file IO:
+    * Parameters controlling file IO: -r, -t and -o. -r is where all the output data will be stored. Default is "test" under the current path. -t shall be defined to locate the reference file where the reads are sequenced from. -o is a log file with default std.out. 
 
         ```-r (--directory)    Location of simulated data. The program will remove the whole directory if it already exists. Otherwise it will create one. (default: test)```
         
@@ -86,7 +82,7 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-o (--outfile)      The standard output file, will be saved in output folder, just give the file name. (default: std.out)```
 
-    * Parameters controlling tree structure: -n, -B, -A, -F, -G
+    * Parameters controlling tree structure: -n, -B, -A, -F and -G. -n is the total number of cells / subclones on the leaf. The binary tree's branch splitting follows Beta-splitting model so that the splitting of the cells between the left and right branches for each split follows a Beta distribution, whose alpha and beta parameters are specified by -A (--Alpha) and -B (--Beta). When -B and -A are closer to each other (e.g., 0.5 and 0.5), the tree is more balanced. To generate a tree that is unbalanced, make -B and -A be far from each other but still within [0, 1]. -G and -K are the mean and standard deviation of the Gaussian distribution that the depth of the tree (the highest level of the tree) will be sampled from. The splitting ends when the number of cells / subclones on the leaf level reaches -n (--cell-num). 
     
         ```-n (--cell-num)     Number of the cells. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. ```
         
@@ -94,15 +90,11 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).```
         
-        ```-F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)```
-        
         ```-G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)```
-        
-        ```-H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
         
         ```-K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
         
-    * Parameters controlling CNAs: -c, -d, -m, -e, -a
+    * Parameters controlling CNAs: -c, -d, -m, -e and -a. To impute a CNA on a branch on the tree, the number of CNAs follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain follows a binomial distribution with p specified by -d (--del-rate). The CNA size follows an exponential distribution with p specified by -e (--exp-theta) plus a minimum CNA size specified by -m (--min-cn-size). If it is a copy number gain, the numbers of gain follows a Geometric distribution with p specified by -a (--amp-p). 
 
         ```-c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)```
         
@@ -114,7 +106,7 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)```
        
-    * Parameters controlling whole chromosome duplication on the branch to the root: -X, -W, -C, -E, -J
+    * Parameters controlling whole chromosome duplication on the branch to the root: -X, -W, -C, -E and -J. The whole chromosome duplications are imputed in the trunk branch connecting the normal cell and the first tumor cell if -W (--whole-amp) is 1. For each chromosome, the probability that it is amplified equals -C (--whole-amp-rate) and the number of copies amplified follows a geometric distribution with p specified by -J (--amp-num-geo-par) multiplied by a number specified by -E (--whole-amp-num). 
 
         ```-X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)```
         
@@ -126,15 +118,15 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)```
     
-    * Parameters controlling SNVS: -R
+    * Parameters controlling SNVS: -R. On a branch, the number of SNVs imputed follows a Poisson distribution, the mean of which equals to snv-rate (specified by -R) multiplied by branch length which is sampled from an exponential distribution with p=1.
 
         ```-R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)```
         
-    * Parameters controlling bulk sequencing:
+    * Parameters controlling bulk sequencing: -U. If -U is "NA" which is the default, no bulk sequencing will be done. When -U is not "NA", bulk sequencing will be done in addition to single-cell sequencing. -U represents the levels to be sequenced, with different levels separated by a semicolon. 
 
         ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
         
-    * Parameters for longitudinal study:
+    * Parameters for sequencing ancestral nodes: -L and -U. These two are similar options: -L controls the levels to be sequenced for single-cell sequencing and -U controls the levels to be sequenced for bulk sequencing. -U can be "NA", in which case bulk sequencing will not be performed. For -L, if it is not specified, the program by default sequences the leaf cells. 
 
         ```-L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1)```
         
@@ -191,68 +183,6 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
 For a complete list of options, type
         
 ```python main.par.overlapping.py --help``` 
-    
-## <a name="CNA"></a>Control of CNA size and rate.
-
-On a branch, the number of the CNA imputed follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain follows a binomial distribution with p specified by -d (--del-rate). The CNA size follows an exponential distribution with p specified by -e (--exp-theta) plus a minimum CNA size specified by -m (--min-cn-size). If it is a copy number gain, the numbers of gain follows a Geometric distribution with p specified by -a (--amp-p). 
-
-```-c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)```
-        
-```-d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)```
-        
-```-m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)```
-        
-```-e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)```
-        
-```-a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)```
-
-## <a name="WCD"></a>Control of whole chromosome duplication.
-
-The whole chromosome duplications are imputed in the trunk branch connecting the normal cell and the first tumor cell if -W (--whole-amp) is 1. For each chromosome, the probability that it is amplified equals -C (--whole-amp-rate) and the number of copies amplified follows a geometric distribution with p specified by -J (--amp-num-geo-par) multiplied by a number specified by -E (--whole-amp-num). 
-
-```-X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)```
-        
-```-W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1)```
-        
-```-C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)```
-        
-```-E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)```
-        
-```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)```
-
-## <a name="SNV"></a>Control of SNV rate.
-
-On a branch, the number of the SNV imputed follows a Poisson distribution, the mean of which equals to snv-rate (specified by -R) multiplied by branch length which is sampled from an exponential distribution with p=1.
-
-```-R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)```
-
-## <a name="tree_structure"></a>Control of tree structure.
-
-The binary tree's branch splitting follows Beta-splitting model so that the splitting of the cells between the left and right branches for each split follows a Beta distribution, whose alpha and beta parameters are specified by -A (--Alpha) and -B (--Beta). 
-
-The splitting ends when the number of cells / subclones on the leaf level reaches -n (--cell-num). The tree witdth and depth can be controlled by Gaussian distributions, the mean and standard deviation of which are specified by -F (--treewidth), -H (--treewidthsigma), -G (--treedpeth) and -K (--treedepthsigma). 
-
-```-n (--cell-num)     Number of the cells. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. ```
-        
-```-B (--Beta)         The program uses the Beta-splitting model to generate the phylogenetic tree. Specify a value between [0, 1]. (default: 0.5)```
-        
-```-A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).```
-        
-```-F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)```
-        
-```-G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)```
-        
-```-H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
-        
-```-K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
-        
-## <a name="longitudinal"></a>Control of parameters for longitudinal study:
-
-It is possible to sample the reads at any level on the tree. If users are interested in the levels other than those on the leaf, i.e., if they are doing research on longitudinal study, -L (--levels) shall be specified such that all levels of interest shall be listed separated by semicolon. Similarly, if users are interested in the levels for bulk sequencing, use -U (--bulk-levels). If -U is not specified, then no sampling of the reads for bulk sequencing. 
-
-```-L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1) ```
-        
-```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
 
 ## <a name="read_fluctuation"></a>Control of read depth, fluctuation, read length, etc.
 
@@ -288,7 +218,7 @@ This command simulates a tree that has 8 leaf nodes (-n 8) with tree depth 4 (--
       
 This command read the .npy files from data folder (-r data), run wgsim in ~/github/SimSCSnTree/wgsim-master/ (-S ~/github/SimSCSnTree/wgsim-master/) to simulate reads. Notice that the reference file needs to be specified (--template-ref ~/references/hg19/hg19.fa) as the .npy files from the first step does not store any fasta file for the sake of space. The reads are simulated only from the leaf level (-L -1) and each node at the leaf level represents only one cell (-M 1). Given -Y 0.1, this command simulates only the first leaf cell. 0 represents the start of the index of the cell of interest, and 1 is the end of the index of the cell of interest. Both start and end are zero-based. The cell at the end, 1 in this case, is not included in the sequence. If the first three cells are to be sequenced, specify with -Y 0.3. Notice --Lorenz-y is set to be 0.28, which is correponding to the read depth fluctuation from DOP-PCR. For reference, when --Lorenz-x is fixed to the default value (0.5), 0.38 corresponds to the bulk sequencing, and 0.27 corresponds to sequencing from MALBAC. The average read coverage is 0.01X (-v 0.01) and the read length is 70bp for each end. 
 
-## <a name="eg_longitudinal"></a>Simulating multiple levels of data for longitudinal study (step 2). 
+## <a name="eg_longitudinal"></a>Simulating multiple levels of internal node (step 2). 
 
 ```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L 1;2;3```
       

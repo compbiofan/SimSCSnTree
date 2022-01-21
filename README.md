@@ -372,7 +372,7 @@ The outputs of this step are the sorted bam (duplication removal step was also p
 
 ## <a name="newick"></a>Generate a newick-formatted tree from .npy file in simulation. 
 
-    The simulator automatically stores the tree structure in from_first_step.tree.npy. To generate the newick string of the tree, use the following command.
+The simulator automatically stores the tree structure in from_first_step.tree.npy. To generate the newick string of the tree, use the following command.
 
-    ```python gen_newick.py from_first_step.tree.npy > newicktree.txt```
+>python gen_newick.py from_first_step.tree.npy > newicktree.txt
 

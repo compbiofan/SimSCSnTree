@@ -81,7 +81,14 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-o (--outfile)      The standard output file, will be saved in output folder, just give the file name. (default: std.out)```
 
-    * Parameters controlling tree structure: -n, -B, -A, -F and -G. -n is the total number of cells / subclones on the leaf. The binary tree's branch splitting follows Beta-splitting model so that the splitting of the cells between the left and right branches for each split follows a Beta distribution, whose alpha and beta parameters are specified by -A (--Alpha) and -B (--Beta). When -B and -A are closer to each other (e.g., 0.5 and 0.5), the tree is more balanced. To generate a tree that is unbalanced, make -B and -A be far from each other but still within [0, 1]. -G and -K are the mean and standard deviation of the Gaussian distribution that the depth of the tree (the highest level of the tree) will be sampled from. The splitting ends when the number of cells / subclones on the leaf level reaches -n (--cell-num). 
+    * Parameters controlling tree structure: -n, -B, -A, -F and -G. 
+    
+    -n is the total number of cells / subclones on the leaf level. 
+    
+    
+    When -M is 1, -n refers to the cell number on the leaf level only. When -M is not 1, -n refers to both the leaf node number and the cell number for any specified level of interest. In this case the cells will be distributed according to their percentage on each node for a certain level. The percentage of a node is specified by the Beta-splitting model when the binary tree grows and this is a stochastic process. 
+    
+    The binary tree's branch splitting follows Beta-splitting model so that the splitting of the cells between the left and right branches for each split follows a Beta distribution, whose alpha and beta parameters are specified by -A (--Alpha) and -B (--Beta). When -B and -A are closer to each other (e.g., 0.5 and 0.5), the tree is more balanced. To generate a tree that is unbalanced, make -B and -A be far from each other but still within [0, 1]. -G and -K are the mean and standard deviation of the Gaussian distribution that the depth of the tree (the highest level of the tree) will be sampled from. The splitting ends when the number of cells / subclones on the leaf level reaches -n (--cell-num). 
     
         ```-n (--cell-num)     Number of the cells. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. ```
         

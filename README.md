@@ -67,7 +67,7 @@ Suppose $this_dir is the path of this package.
 
 SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a genome and each edge of which CNA(s) and/or SNV(s) are imputed. Step 2 samples reads from the genomes on the nodes selected. The following shows how each step works. 
 
-1. Generate the tree with CNVs/SNVs on the edges. This step generates two npy files, one for the tree (containing all information of CNVs/SNVs on the edges and the tree structure) and one for intermediate files (containing chromosome name, chromosome length and the index of the nodes). The .npy files will be used in step 2 for sampling reads. 
+**1. Generate the tree with CNVs/SNVs on the edges.** This step generates two npy files, one for the tree (containing all information of CNVs/SNVs on the edges and the tree structure) and one for intermediate files (containing chromosome name, chromosome length and the index of the nodes). The .npy files will be used in step 2 for sampling reads. 
     
     ```python main.par.overlapping.py``` 
     
@@ -131,25 +131,25 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
         
-2. Sample reads from specified genomes. 
+**2. Sample reads from specified genomes. **
 
     ```python main.par.overlapping.py -k 1``` 
     
     followed by the following parameters grouped by their functions.  
     
-    * Parameter controlling which step to run:
+    * Parameter controlling which step to run: -k. The second step is to sample reads once the genomes are generated and stored in .npy files. To skip the first step and jump to the second step, use -k option. The program will automatically read the .npy files and start sequencing the reads from the genomes stored in .npy files. 
 
         ```-k (--skip-first-step)  If the alleles for all nodes have been made, the step can be skipped. Make it 1 then. (default: 0)```
         
-    * Parameters for IO:
+    * Parameters for IO: -f. This option specifies the prefix string of the fasta file names for the genomes written for sampling reads. 
 
         ```-f (--fa-prefix)    The prefix of the alleles and read names. (default: ref)```
         
-    * Parameter specifying which read simulator to use:
+    * Parameter specifying which read simulator to use: -S. This package has the wgsim source files but users are supposed to compile wgsim and specify the binary by -S. 
 
         ```-S (--wgsim-dir)    The directory of the binary of wgsim. It is in the same folder of this main.py. (need to specify)```
         
-    * Parameters controlling read depth fluctuation:
+    * Parameters controlling read depth fluctuation: -x, -y, -v -l, -w and -u. Read depth fluctuation is decided by -x (--Lorenz-x) and -y (--Lorenz-y) which represent the x and y values on the Lorenz curve that imitates the read coverage fluctuation. Suppose -x is fixed at 0.5, the lower the -y, the more uneven the read depth is. When -y is around 0.38, it resembles bulk sampling. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. Users can change the coverage and read length of the sampled reads by tuning -v (--coverage) and -l (--readlen), respectively. SimSCSnTree divides the genome into nonoberlapping windows and samples the number of reads for each window. To determine window size, use -w (--window-size). The higher the -w, the less change of read depth on the genome. Starting from the first window which was given a fixed read number according to -v, the next window's read number is calculated by -x, -y and -u, whereas -u (--acceptance-rate) is the probability to accept a proposal in Metropolis Hasting so that the read coverage fluctuation over the whole genome reflects the expected Lorenz curve and the change of the number of reads between neighboring windows is restricted. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. The higher -u, the faster the program would run although the difference may not be noticeable. 
 
         ```-x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5)```
         
@@ -167,7 +167,7 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
     
         ```-V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30)```
     
-    * Parameters for parallel job submissions:
+    * Parameters for parallel job submissions: -p, -Y, and -I. SimSCSnTree allows parallel processing in simulating reads as this is the most time-consuming step. Use -p to specify the number of processors. For each job, specify a small number of leaf indices to sequence by option -Y, which shall be in the format of a.b, in which a and b are the smallest and largest numbers of leaf index the current job will process. The leaf index is 0-based. 
 
         ```-p (--processors)   Numbers of processors available.```
         
@@ -175,33 +175,13 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-I (--leaf-ID-range) For parallele job submission. >= min, < max leaf ID will be processed. min.max. This counts from root 0-based so that internal nodes sequencing can be parallelized. (default: -1). When both -Y and -I are -1, all leaves will be processed.```
         
-    * Parameters for clonality study:  
+    * Parameters for clonality study: -M. When users are interested in the case when each leaf node represents a cell instead of a subclone, -M shall be on. Specify it to be 1 to turn it on. 
           	
         ```-M (--single-cell-per-node)	If this is on, each node represents one cell and there is no clonality in the node. In this case tree_width will be the same as n (leaf num). 1 is on. (default: 0)```
     
 For a complete list of options, type
         
 ```python main.par.overlapping.py --help``` 
-
-## <a name="read_fluctuation"></a>Control of read depth, fluctuation, read length, etc.
-
-Read depth fluctuation is decided by -x (--Lorenz-x) and -y (--Lorenz-y) which represent the x and y values on the Lorenz curve that imitates the read coverage fluctuation. Suppose -x is fixed at 0.5, the lower the -y, the more uneven the read depth is. When -y is around 0.38, it resembles bulk sampling. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. 
-
-Users can change the coverage and read length of the sampled reads by tuning -v (--coverage) and -l (--readlen), respectively.
-
-SimSCSnTree divides the genome into nonoberlapping windows and samples the number of reads for each window. To determine window size, use -w (--window-size). The higher the -w, the less change of read depth on the genome. Starting from the first window which was given a fixed read number according to -v, the next window's read number is calculated by -x, -y and -u, whereas -u (--acceptance-rate) is the probability to accept a proposal in Metropolis Hasting so that the read coverage fluctuation over the whole genome reflects the expected Lorenz curve and the change of the number of reads between neighboring windows is restricted. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. The higher -u, the faster the program would run although the difference may not be noticeable. 
-
-```-x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5) ```
-        
-```-y (--Lorenz-y)     The value on the y-axis of the Lorenz curve imitating the real coverage unevenness. x > y. The closer (x, y) to the diagonal, the better the coverage evenness. (default: 0.4) ```
-        
-```-v (--coverage)     The average coverage of the sequence. (default: 0.02)```
-        
-```-l (--readlen)      Read length for each read sequenced. (default: 35bp)```
-        
-```-w (--window-size)  Within a window, the coverage is according to a Gaussian distribution. Neighboring windows' read coverage is according to a Metropolis Hasting process. (default: 200000bp)```
-        
-```-u (--acceptance-rate)  The probability to accept a proposal in Metropolis Hasting. (default: 0.5)```
 
 # <a name="examples"></a>Examples. 
 

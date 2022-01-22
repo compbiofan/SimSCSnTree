@@ -131,7 +131,7 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
         
-**2. Sample reads from specified genomes. **
+**2. Sample reads from specified genomes.** This is the 2nd step. Given the two .npy files in the 1st step, this step is to sample the reads for each genome of interest.
 
     ```python main.par.overlapping.py -k 1``` 
     
@@ -149,7 +149,9 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
 
         ```-S (--wgsim-dir)    The directory of the binary of wgsim. It is in the same folder of this main.py. (need to specify)```
         
-    * Parameters controlling read depth fluctuation: -x, -y, -v -l, -w and -u. Read depth fluctuation is decided by -x (--Lorenz-x) and -y (--Lorenz-y) which represent the x and y values on the Lorenz curve that imitates the read coverage fluctuation. Suppose -x is fixed at 0.5, the lower the -y, the more uneven the read depth is. When -y is around 0.38, it resembles bulk sampling. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. Users can change the coverage and read length of the sampled reads by tuning -v (--coverage) and -l (--readlen), respectively. SimSCSnTree divides the genome into nonoberlapping windows and samples the number of reads for each window. To determine window size, use -w (--window-size). The higher the -w, the less change of read depth on the genome. Starting from the first window which was given a fixed read number according to -v, the next window's read number is calculated by -x, -y and -u, whereas -u (--acceptance-rate) is the probability to accept a proposal in Metropolis Hasting so that the read coverage fluctuation over the whole genome reflects the expected Lorenz curve and the change of the number of reads between neighboring windows is restricted. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. The higher -u, the faster the program would run although the difference may not be noticeable. 
+    * Parameters controlling read depth fluctuation (-x, -y, -w and -u), read coverage (-v) and read length (-l). Read depth fluctuation is decided by -x (--Lorenz-x) and -y (--Lorenz-y) which represent the x and y values on the Lorenz curve that imitates the read coverage fluctuation. Suppose -x is fixed at 0.5, the lower the -y, the more uneven the read depth is. When -y is around 0.38, it resembles bulk sampling. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. SimSCSnTree divides the genome into nonoberlapping windows and samples the number of reads for each window. To determine window size, use -w (--window-size). The higher the -w, the less change of read depth on the genome. Starting from the first window which was given a fixed read number according to -v, the next window's read number is calculated by -x, -y and -u, whereas -u (--acceptance-rate) is the probability to accept a proposal in Metropolis Hasting so that the read coverage fluctuation over the whole genome reflects the expected Lorenz curve and the change of the number of reads between neighboring windows is restricted. For more details, please refer to "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020. The higher -u, the faster the program would run although the difference may not be noticeable. 
+    
+    Users can change the coverage and read length of the sampled reads by tuning -v (--coverage) and -l (--readlen), respectively. -v is the average number of reads covering each nucleotide. For high coverage data such as the data suitable for SNV detection, use -v >= 5. For low coverage data such as the data suitable for CNA detection, use -v < 0.1. SimSCSnTree samples paired-end reads and a single read length is specified by -l. Use the number in between 35 and 150 for mimicking Illumina reads' length. 
 
         ```-x (--Lorenz-x)     The value on the x-axis of the point furthest from the diagonal on the Lorenz curve imitating the real coverage uneveness. (default: 0.5)```
         
@@ -163,7 +165,7 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-u (--acceptance-rate)  The probability to accept a proposal in Metropolis Hasting. (default: 0.5)```
     
-    * Parameters controlling bulk sequencing:
+    * Parameters controlling bulk sequencing: -V. This option is similar to -v but it applies to the bulk sequencing. Since bulk sequencing is usually of a much deep depth than single cell, use -V >= 5 if bulk sequencing data is desired. The same coverage applies to all ancestral genomes. 
     
         ```-V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30)```
     

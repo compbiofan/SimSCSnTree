@@ -108,12 +108,14 @@ if len(sys.argv) <= 1:
         -p (--processors)   Numbers of processors available.
         -r (--directory)    Location of simulated data. The program will remove the whole directory if it already exists. Otherwise it will create one. (default: test)
         -S (--wgsim-dir)    The directory of the binary of wgsim. It is in the same folder of this main.py. (need to specify) 
-        -n (--cell-num)     Number of the cells on a level of interest. 
+        -n (--cell-num)     Number of the cells on a level of interest. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. 
         -B (--Beta)         The program uses the Beta-splitting model to generate the phylogenetic tree. Specify a value between [0, 1]. (default: 0.5)
         -A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).
         -D (--Delta)        The rate of a node to disappear. Specify a value between [0, 1]. If all nodes have daughter nodes, take 0. (default: 0)
         -G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)
         -K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
+        -F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)
+        -H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)
         -c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)
         -d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)
         -m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)
@@ -152,10 +154,10 @@ parser.add_argument('-B', '--Beta', default=0.5)
 parser.add_argument('-A', '--Alpha', default=0.5)
 parser.add_argument('-D', '--Delta', default=0)
 # add the width to the tree
-#parser.add_argument('-F', '--treewidth', default=8)
+parser.add_argument('-F', '--treewidth', default=8)
 # add the depth to the tree
 parser.add_argument('-G', '--treedepth', default=4)
-#parser.add_argument('-H', '--treewidthsigma', default=0.5)
+parser.add_argument('-H', '--treewidthsigma', default=0.5)
 parser.add_argument('-K', '--treedepthsigma', default=0.5)
 #parser.add_argument('-O', '--Output', default="test")
 parser.add_argument('-c', '--cn-num', default=1)
@@ -201,9 +203,9 @@ n = int(args.leaf_num)
 Beta = float(args.Beta)
 Alpha = float(args.Alpha)
 Delta = float(args.Delta)
-#treeWidth = float(args.treewidth)
+treeWidth = float(args.treewidth)
 treeDepth = float(args.treedepth)
-#treeWidthSigma = float(args.treewidthsigma)
+treeWidthSigma = float(args.treewidthsigma)
 treeDepthSigma = float(args.treedepthsigma)
 #Output = args.Output
 cn_num = int(args.cn_num)
@@ -230,8 +232,6 @@ amp_num_geo_par = float(args.amp_num_geo_par)
 # for one cell per clone, specify leaf_index_range instead of leaf_ID_range
 leaf_index_range = args.leaf_index_range
 single_cell_per_clone = (int(args.single_cell_per_clone) == 1) 
-if single_cell_per_clone:
-    treeWidth = n
 
 index_min = 0
 index_max = 10000000
@@ -286,8 +286,8 @@ def check_Ns(file):
 # Now all CNs are in tree, not generating fa or remember it in the tree nodes.
 if skip == 0:
     print("before generating tree:")
-    #[tree, tree_elements_arr] = gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
-    [tree, tree_elements_arr] = gen_tree(n, Beta, Alpha, Delta, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
+    [tree, tree_elements_arr] = gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
+    #[tree, tree_elements_arr] = gen_tree(n, Beta, Alpha, Delta, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
     #[level_chrlens, level_indices, chr_name_array, tree] = gen_tree(n, Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, dir, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par)
     #numpy.save(save_prefix + ".tree_elements.npy", tree_elements)
     #numpy.save(save_prefix + ".leaf_chrlen.npy", leaf_chrlen)

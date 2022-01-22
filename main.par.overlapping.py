@@ -136,7 +136,6 @@ if len(sys.argv) <= 1:
         -E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)
         -J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)
         -Y (--leaf-index-range) For parallele job submission. >= min, < max leaf index will be processed. min.max. This counts leaf nodes from 0. (default: -1)
-        -I (--leaf-ID-range) For parallele job submission. >= min, < max leaf ID will be processed. min.max. This counts from root 0-based so that internal nodes sequencing can be parallelized. (default: -1). When both -Y and -I are -1, all leaves will be processed.
         -L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1) 
         -U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. 	
         -V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30) 	
@@ -185,7 +184,7 @@ parser.add_argument('-C', '--whole-amp-rate', default=0.2)
 parser.add_argument('-E', '--whole-amp-num', default=1)
 parser.add_argument('-J', '--amp-num-geo-par', default=1)
 parser.add_argument('-Y', '--leaf-index-range', default="-1")
-parser.add_argument('-I', '--leaf-ID-range', default="-1")
+#parser.add_argument('-I', '--leaf-ID-range', default="-1")
 parser.add_argument('-L', '--levels', default="-1")
 parser.add_argument('-U', '--bulk-levels', default="NA")
 parser.add_argument('-V', '--cov-bulk', default="30")
@@ -241,13 +240,13 @@ if leaf_index_range != "-1":
     index_min = int(index_min)
     index_max = int(index_max)
 # leaf_ID_range is related with the level_index
-leaf_ID_range = args.leaf_ID_range
-leaf_index_min = 0
-leaf_index_max = 10000000
-if leaf_ID_range != "-1":
-    leaf_index_min, leaf_index_max = leaf_ID_range.split(".")
-    leaf_index_min = int(leaf_index_min)
-    leaf_index_max = int(leaf_index_max)
+#leaf_ID_range = args.leaf_ID_range
+#leaf_index_min = 0
+#leaf_index_max = 10000000
+#if leaf_ID_range != "-1":
+#    leaf_index_min, leaf_index_max = leaf_ID_range.split(".")
+#    leaf_index_min = int(leaf_index_min)
+#    leaf_index_max = int(leaf_index_max)
 
 # levels for tree inferencer and longitudinal study
 # process level so that the negative ones are turned to positive, the ones over the deepest level will be reported, and all levels will be sorted in a numerical increasing order
@@ -420,7 +419,8 @@ if skip == 1:
             # this is the node id including interal nodes.
             level_index_ = level_index[index]
             #if leaf_index_range != "-1" and index < index_max and index >= index_min or leaf_ID_range != "-1" and leaf_index_ < leaf_index_max and leaf_index_ >= leaf_index_min or leaf_index_range == "-1" and leaf_ID_range == "-1": 
-            if leaf_index_range != "-1" and index < index_max and index >= index_min or leaf_ID_range != "-1" and level_index_ < leaf_index_max and level_index_ >= leaf_index_min or leaf_index_range == "-1" and leaf_ID_range == "-1": 
+            #if leaf_index_range != "-1" and index < index_max and index >= index_min or leaf_ID_range != "-1" and level_index_ < leaf_index_max and level_index_ >= leaf_index_min or leaf_index_range == "-1" and leaf_ID_range == "-1": 
+            if leaf_index_range != "-1" and index < index_max and index >= index_min or leaf_index_range == "-1": 
                 #make_fa(leaf_index[index], tree, ref, chr_name_array, fa_prefix)
                 make_fa_wABs(level_index[index], tree, ref, chr_name_array, fa_prefix)
                 
@@ -435,6 +435,7 @@ if skip == 1:
                 #TODO need to take care the difference of the added cell number and the total
                 cell_i_last = False
                 for cell_i in range(cell_num):
+                    # sequence each cell in this subclone 
                     if cell_i == cell_num - 1:
                         # for removing the fa file
                         cell_i_last = True

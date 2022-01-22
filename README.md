@@ -81,14 +81,15 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         
         ```-o (--outfile)      The standard output file, will be saved in output folder, just give the file name. (default: std.out)```
 
-    * Parameters controlling tree structure: -n, -B, -A, -F and -G. 
+    * Parameters controlling tree structure: -n, -B, -A, -G, -K, -F and -H. 
     
-    -n is the total number of cells / subclones on the leaf level. 
+    -n is the total number of cells on a level of interest. Since -F is the total number of nodes (subclones) on the leaf level, -n should always be greater than -F unless when -M is 1. When -M is not 1, the cells will be distributed according to their percentage on each node for a certain level. The percentage of a node is specified by the Beta-splitting model when the binary tree grows and this is a stochastic process. 
     
+    -F and -H defines the total number of subclones on the leaf level, thus the width of the tree. -F and -H are the mean and standard deviation that the tree width will be sampled from in a Gaussian distribution. Define -H to be a very small number such as 0.0001 when users want the tree width to be a certain number. 
     
-    When -M is 1, -n refers to the cell number on the leaf level only. When -M is not 1, -n refers to both the leaf node number and the cell number for any specified level of interest. In this case the cells will be distributed according to their percentage on each node for a certain level. The percentage of a node is specified by the Beta-splitting model when the binary tree grows and this is a stochastic process. 
+    The binary tree's branch splitting follows Beta-splitting model so that the splitting of the cells between the left and right branches for each split follows a Beta distribution, whose alpha and beta parameters are specified by -A (--Alpha) and -B (--Beta). When -B and -A are closer to each other (e.g., 0.5 and 0.5), the tree is more balanced. To generate a tree that is unbalanced, make -B and -A be far from each other but still within [0, 1]. -G and -K are the mean and standard deviation of the Gaussian distribution that the depth of the tree (the highest level of the tree) will be sampled from. The splitting ends when the number of nodes on the leaf level reaches the tree width. 
     
-    The binary tree's branch splitting follows Beta-splitting model so that the splitting of the cells between the left and right branches for each split follows a Beta distribution, whose alpha and beta parameters are specified by -A (--Alpha) and -B (--Beta). When -B and -A are closer to each other (e.g., 0.5 and 0.5), the tree is more balanced. To generate a tree that is unbalanced, make -B and -A be far from each other but still within [0, 1]. -G and -K are the mean and standard deviation of the Gaussian distribution that the depth of the tree (the highest level of the tree) will be sampled from. The splitting ends when the number of cells / subclones on the leaf level reaches -n (--cell-num). 
+    -G and -K defines the tree's depth. -G and -K are the mean and standard deviation the tree's depth will be drawn from in a Gaussian distribution. The tree grows in a way that prioritizes to reach defined tree depth. But if -G is unreasonably big, e.g., -G > 2 * -F, the tree's depth may not reach the desired tree depth. 
     
         ```-n (--cell-num)     Number of the cells. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. ```
         
@@ -99,6 +100,10 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
         ```-G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)```
         
         ```-K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
+        
+        ```-F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)```
+        
+        ```-H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
         
     * Parameters controlling CNAs: -c, -d, -m, -e and -a. To impute a CNA on a branch on the tree, the number of CNAs follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain follows a binomial distribution with p specified by -d (--del-rate). The CNA size follows an exponential distribution with p specified by -e (--exp-theta) plus a minimum CNA size specified by -m (--min-cn-size). If it is a copy number gain, the numbers of gain follows a Geometric distribution with p specified by -a (--amp-p). 
 

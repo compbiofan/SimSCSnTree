@@ -71,7 +71,7 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
     
     ```python main.par.overlapping.py``` 
     
-    followed by the following parameters grouped by their functions.  
+followed by the following parameters grouped by their functions.  
 
     * Parameters controlling file IO: -r, -t and -o. -r is where all the output data will be stored. Default is "test" under the current path. -t shall be defined to locate the reference file where the reads are sequenced from. -o is a log file with default std.out. 
 

@@ -131,7 +131,7 @@ followed by the following parameters grouped by their functions.
         
 * Parameters for sequencing ancestral nodes: -L and -U. These two are similar options: -L controls the levels to be sequenced for single-cell sequencing and -U controls the levels to be sequenced for bulk sequencing. -U can be "NA", in which case bulk sequencing will not be performed. For -L, if it is not specified, the program by default sequences the leaf cells. 
 
-    ```-L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1)```
+    ```-L (--levels)	This is for both tree inference and sampling ancestral nodes. If the user is interested in sequencing nodes on multiple levels, user can specify the levels of interest by separating them by semicolon. The first tumor cell/clone under the trunk has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1)```
         
     ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
         
@@ -171,13 +171,11 @@ followed by the following parameters grouped by their functions.
     
     ```-V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30)```
     
-* Parameters for parallel job submissions: -p, -Y, and -I. SimSCSnTree allows parallel processing in simulating reads as this is the most time-consuming step. Use -p to specify the number of processors. For each job, specify a small number of leaf indices to sequence by option -Y, which shall be in the format of a.b, in which a and b are the smallest and largest numbers of leaf index the current job will process. The leaf index is 0-based. 
+* Parameters for parallel job submissions: -p and -Y. SimSCSnTree allows parallel processing in simulating reads. Use -p to specify the number of processors. To further parallelize sequencing reads, use -Y to specify a range of nodes to sequence for a job being submitted. Users can specify different ranges of nodes for sequencing for different jobs and thus finish the sequencing in a timely manner. The option -Y shall be in the format of a.b, in which a and b are the smallest and largest numbers of a node on a certain level that the job will process. The node index is 0-based. When -Y is default which is -1, all nodes for the specified level will be sequenced in this job, in which case there is no parallelization for multiple jobs to speed up the sequencing. 
 
     ```-p (--processors)   Numbers of processors available.```
         
     ```-Y (--leaf-index-range) For parallele job submission. >= min, < max leaf index will be processed. min.max. This counts leaf nodes from 0. (default: -1)```
-        
-    ```-I (--leaf-ID-range) For parallele job submission. >= min, < max leaf ID will be processed. min.max. This counts from root 0-based so that internal nodes sequencing can be parallelized. (default: -1). When both -Y and -I are -1, all leaves will be processed.```
         
 * Parameters for clonality study: -M. When users are interested in the case when each leaf node represents a cell instead of a subclone, -M shall be on. Specify it to be 1 to turn it on. 
           	

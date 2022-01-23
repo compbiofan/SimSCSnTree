@@ -133,7 +133,6 @@ followed by the following parameters grouped by their functions.
 
     ```-L (--levels)	This is for both tree inference and sampling ancestral nodes. If the user is interested in sequencing nodes on multiple levels, user can specify the levels of interest by separating them by semicolon. The first tumor cell/clone under the trunk has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1)```
         
-    ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
     
     The following illustration shows how the levels are counted. 
     ![illustration](https://user-images.githubusercontent.com/54594878/150700931-5641f438-3407-4ce7-aaa0-bdfeaeb1e704.png)
@@ -174,6 +173,8 @@ followed by the following parameters grouped by their functions.
     
     ```-V (--cov-bulk)	The coverage of the bulk sequencing. The same for all levels. This parameter is needed when -U is identified. (default: 30)```
     
+    ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
+    
 * Parameters for parallel job submissions: -p and -Y. SimSCSnTree allows parallel processing in simulating reads. Use -p to specify the number of processors. To further parallelize sequencing reads, use -Y to specify a range of nodes to sequence for a job being submitted. Users can specify different ranges of nodes for sequencing for different jobs and thus finish the sequencing in a timely manner. The option -Y shall be in the format of a.b, in which a and b are the smallest and largest numbers of a node on a certain level that the job will process. The node index is 0-based. When -Y is default which is -1, all nodes for the specified level will be sequenced in this job, in which case there is no parallelization for multiple jobs to speed up the sequencing. 
 
     ```-p (--processors)   Numbers of processors available.```
@@ -192,15 +193,15 @@ For a complete list of options, type
 
 ## <a name="eg_CNA_SNV"></a>Simulating both CNAs and SNVs on a tree (step 1). 
 
-```python main.par.overlapping.py -r data -n 8 --treewidth 8 --treedepth 4 --treewidthsigma 0.001 --treedepthsigma 0.001 --template-ref ~/references/hg19/hg19.fa -m 2000000 -e 5000000 -R 2```
+```python main.par.overlapping.py -r data --treewidth 8 --treewidthsigma 0.001 --treedepth 4 --treedepthsigma 0.001 --template-ref ~/references/hg19/hg19.fa -m 2000000 -e 5000000 -R 2 -M```
       
-This command simulates a tree that has 8 leaf nodes (-n 8) with tree depth 4 (--treedepth 4) and width 8 (--treewidth 8) with both CNVs and SNVs. The SNV rate is set up to be 2 (-R 2), and the CNV size is set up to follow an exponential destribution with p=5Mbp (-e 5000000) plus a minimum size of 2Mbp (-m 2000000). Both alleles of the root node start from the hg19 reference file (--template-ref ~/references/hg19/hg19.fa). All .npy files will be stored in data folder (-r data) in the current directory. Remove data folder (or back it up to a different name) before running this command to avoid the error message.
+This command simulates a tree that has about 8 leaf cells (--treewidth 8 --treewidthsigma 0.001) with tree depth 4 (--treedepth 4) with both CNVs and SNVs imputed on the branches. The SNV rate is set up to be 2 (-R 2), and the CNV size is set up to follow an exponential destribution with p=5Mbp (-e 5000000) plus a minimum size of 2Mbp (-m 2000000). The SNV number on a branch will be SNV rate * branch length, whereas branch length is sampled from an exponential distribution with p = 1. Both alleles of the root node start from the hg19 reference file (--template-ref ~/references/hg19/hg19.fa). All .npy files will be stored in data folder (-r data) under the current directory. Remove "data" folder (or back it up to a different name) before running this command to avoid the error message.
 
 ## <a name="eg_reads"></a>Simulating reads at the DOP-PCR read depth fluctuation (and bulk and MALBAC) (step 2). 
 
 ```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L -1 -Y 0.1 -v 0.01 -l 70```
       
-This command read the .npy files from data folder (-r data), run wgsim in ~/github/SimSCSnTree/wgsim-master/ (-S ~/github/SimSCSnTree/wgsim-master/) to simulate reads. Notice that the reference file needs to be specified (--template-ref ~/references/hg19/hg19.fa) as the .npy files from the first step does not store any fasta file for the sake of space. The reads are simulated only from the leaf level (-L -1) and each node at the leaf level represents only one cell (-M 1). Given -Y 0.1, this command simulates only the first leaf cell. 0 represents the start of the index of the cell of interest, and 1 is the end of the index of the cell of interest. Both start and end are zero-based. The cell at the end, 1 in this case, is not included in the sequence. If the first three cells are to be sequenced, specify with -Y 0.3. Notice --Lorenz-y is set to be 0.28, which is correponding to the read depth fluctuation from DOP-PCR. For reference, when --Lorenz-x is fixed to the default value (0.5), 0.38 corresponds to the bulk sequencing, and 0.27 corresponds to sequencing from MALBAC. The average read coverage is 0.01X (-v 0.01) and the read length is 70bp for each end. 
+This command runs step 2 to sample reads (-k 1). It reads the .npy files from data folder (-r data), runs wgsim in ~/github/SimSCSnTree/wgsim-master/ (-S ~/github/SimSCSnTree/wgsim-master/) to simulate reads. Notice that the reference file needs to be specified (--template-ref ~/references/hg19/hg19.fa) as the .npy files from the first step does not store any fasta file for the sake of space. The reads are simulated only from the leaf level (-L -1) and each node at the leaf level represents only one cell (-M 1). Given -Y 0.1, this command simulates only the first leaf cell. 0 represents the start of the index of the cell of interest, and 1 is the end of the index of the cell of interest. Both start and end are zero-based. The cell at the end, 1 in this case, is not included in the sequence. If the first three cells are to be sequenced, specify with -Y 0.3. Notice --Lorenz-y is set to be 0.28, which is correponding to the read depth fluctuation from DOP-PCR. For reference, when --Lorenz-x is fixed to the default value (0.5), 0.38 corresponds to the bulk sequencing, and 0.27 corresponds to sequencing from MALBAC. The average read coverage is 0.01X (-v 0.01) and the read length is 70bp for each end. 
 
 ## <a name="eg_longitudinal"></a>Simulating multiple levels of internal node (step 2). 
 

@@ -136,8 +136,7 @@ followed by the following parameters grouped by their functions.
     ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
     
     The following illustration shows how the levels are counted. 
-    
-    [illustration.pdf](https://github.com/compbiofan/SimSCSnTree/files/7921590/illustration.pdf)
+    ![illustration](https://user-images.githubusercontent.com/54594878/150700931-5641f438-3407-4ce7-aaa0-bdfeaeb1e704.png)
         
 **2. Sample reads from specified genomes.** This is the 2nd step. Given the two .npy files in the 1st step, this step is to sample the reads for each genome of interest.
 

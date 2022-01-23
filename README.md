@@ -81,59 +81,59 @@ followed by the following parameters grouped by their functions.
         
     ```-o (--outfile)      The standard output file, will be saved in output folder, just give the file name. (default: std.out)```
 
-    * Parameters controlling tree structure: -n, -B, -A, -G, -K, -F and -H. -n is the total number of cells on a level of interest. Since -F is the total number of nodes (subclones) on the leaf level, -n should always be greater than -F unless when -M is 1. When -M is not 1, the cells will be distributed according to their percentage on each node for a certain level. The percentage of a node is specified by the Beta-splitting model when the binary tree grows and this is a stochastic process. -F and -H defines the total number of subclones on the leaf level, thus the width of the tree. -F and -H are the mean and standard deviation that the tree width will be sampled from in a Gaussian distribution. Define -H to be a very small number such as 0.0001 when users want the tree width to be a certain number. The binary tree's branch splitting follows Beta-splitting model so that the splitting of the cells between the left and right branches for each split follows a Beta distribution, whose alpha and beta parameters are specified by -A (--Alpha) and -B (--Beta). When -B and -A are closer to each other (e.g., 0.5 and 0.5), the tree is more balanced. To generate a tree that is unbalanced, make -B and -A be far from each other but still within [0, 1]. -G and -K are the mean and standard deviation of the Gaussian distribution that the depth of the tree (the highest level of the tree) will be sampled from. The splitting ends when the number of nodes on the leaf level reaches the tree width. -G and -K defines the tree's depth. -G and -K are the mean and standard deviation the tree's depth will be drawn from in a Gaussian distribution. The tree grows in a way that prioritizes to reach defined tree depth. But if -G is unreasonably big, e.g., -G > 2 * -F, the tree's depth may not reach the desired tree depth. 
+* Parameters controlling tree structure: -n, -B, -A, -G, -K, -F and -H. -n is the total number of cells on a level of interest. Since -F is the total number of nodes (subclones) on the leaf level, -n should always be greater than -F unless when -M is 1. When -M is not 1, the cells will be distributed according to their percentage on each node for a certain level. The percentage of a node is specified by the Beta-splitting model when the binary tree grows and this is a stochastic process. -F and -H defines the total number of subclones on the leaf level, thus the width of the tree. -F and -H are the mean and standard deviation that the tree width will be sampled from in a Gaussian distribution. Define -H to be a very small number such as 0.0001 when users want the tree width to be a certain number. The binary tree's branch splitting follows Beta-splitting model so that the splitting of the cells between the left and right branches for each split follows a Beta distribution, whose alpha and beta parameters are specified by -A (--Alpha) and -B (--Beta). When -B and -A are closer to each other (e.g., 0.5 and 0.5), the tree is more balanced. To generate a tree that is unbalanced, make -B and -A be far from each other but still within [0, 1]. -G and -K are the mean and standard deviation of the Gaussian distribution that the depth of the tree (the highest level of the tree) will be sampled from. The splitting ends when the number of nodes on the leaf level reaches the tree width. -G and -K defines the tree's depth. -G and -K are the mean and standard deviation the tree's depth will be drawn from in a Gaussian distribution. The tree grows in a way that prioritizes to reach defined tree depth. But if -G is unreasonably big, e.g., -G > 2 * -F, the tree's depth may not reach the desired tree depth. 
     
-        ```-n (--cell-num)     Number of the cells. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. ```
+    ```-n (--cell-num)     Number of the cells. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. ```
         
-        ```-B (--Beta)         The program uses the Beta-splitting model to generate the phylogenetic tree. Specify a value between [0, 1]. (default: 0.5)```
+    ```-B (--Beta)         The program uses the Beta-splitting model to generate the phylogenetic tree. Specify a value between [0, 1]. (default: 0.5)```
         
-        ```-A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).```
+    ```-A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).```
         
-        ```-G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)```
+    ```-G (--treedepth)    The mean of the tree depth distribution. The final tree depth will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 4 counting from the first cancer cell)```
         
-        ```-K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
+    ```-K (--treedepthsigma)	The standard deviation of the tree depth distribution. To get exactly the tree depth defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
         
-        ```-F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)```
+    ```-F (--treewidth)    The mean of the tree width distribution. The final tree width will be sampled from a Gaussian with this mean and a fixed standard deviation. (default: 8)```
         
-        ```-H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
+    ```-H (--treewidthsigma)	The standard deviation of the tree width distribution. To get exactly the tree width defined by -F, use a very small standard deviation, e.g., 0.0001. (default: 0.5)```
         
-    * Parameters controlling CNAs: -c, -d, -m, -e and -a. To impute a CNA on a branch on the tree, the number of CNAs follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain follows a binomial distribution with p specified by -d (--del-rate). The CNA size follows an exponential distribution with p specified by -e (--exp-theta) plus a minimum CNA size specified by -m (--min-cn-size). If it is a copy number gain, the numbers of gain follows a Geometric distribution with p specified by -a (--amp-p). 
+* Parameters controlling CNAs: -c, -d, -m, -e and -a. To impute a CNA on a branch on the tree, the number of CNAs follows a Poisson distribution, the mean of which follows an exponential distribution with p specified by -c (--cn-num). The deletion rate as compared to copy number gain follows a binomial distribution with p specified by -d (--del-rate). The CNA size follows an exponential distribution with p specified by -e (--exp-theta) plus a minimum CNA size specified by -m (--min-cn-size). If it is a copy number gain, the numbers of gain follows a Geometric distribution with p specified by -a (--amp-p). 
 
-        ```-c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)```
+    ```-c (--cn-num)       The average number of copy number variations to be added on a branch. (default: 1)```
         
-        ```-d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)```
+    ```-d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)```
         
-        ```-m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)```
+    ```-m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)```
         
-        ```-e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)```
+    ```-e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)```
         
-        ```-a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)```
+    ```-a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)```
        
-    * Parameters controlling whole chromosome duplication on the branch to the root: -X, -W, -C, -E and -J. The whole chromosome duplications are imputed in the trunk branch connecting the normal cell and the first tumor cell if -W (--whole-amp) is 1. For each chromosome, the probability that it is amplified equals -C (--whole-amp-rate) and the number of copies amplified follows a geometric distribution with p specified by -J (--amp-num-geo-par) multiplied by a number specified by -E (--whole-amp-num). 
+* Parameters controlling whole chromosome duplication on the branch to the root: -X, -W, -C, -E and -J. The whole chromosome duplications are imputed in the trunk branch connecting the normal cell and the first tumor cell if -W (--whole-amp) is 1. For each chromosome, the probability that it is amplified equals -C (--whole-amp-rate) and the number of copies amplified follows a geometric distribution with p specified by -J (--amp-num-geo-par) multiplied by a number specified by -E (--whole-amp-num). 
 
-        ```-X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)```
+    ```-X (--multi-root)   The multiplier of the mean CNV on root. (default: 4)```
         
-        ```-W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1)```
+    ```-W (--whole-amp)    If there is whole chromosome amplification, 1 as yes. (default: 1)```
         
-        ```-C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)```
+    ```-C (--whole-amp-rate)   Whole amplification rate: rate of an allele chosen to be amplified (default: 0.2)```
         
-        ```-E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)```
+    ```-E (--whole-amp-num)    Whole amplification copy number addition, which occurs to one allele at a time. (default: 1)```
         
-        ```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)```
+    ```-J (--amp-num-geo-par)  Whole amplification copy number distribution (geometric distribution parameter: the smaller, the more evenly distributed). (default: 1)```
     
-    * Parameters controlling SNVS: -R. On a branch, the number of SNVs imputed follows a Poisson distribution, the mean of which equals to snv-rate (specified by -R) multiplied by branch length which is sampled from an exponential distribution with p=1.
+* Parameters controlling SNVS: -R. On a branch, the number of SNVs imputed follows a Poisson distribution, the mean of which equals to snv-rate (specified by -R) multiplied by branch length which is sampled from an exponential distribution with p=1.
 
-        ```-R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)```
+    ```-R (--snv-rate)     The rate of the snv. snv-rate * branch-length = # snvs. (default: 1)```
         
-    * Parameters controlling bulk sequencing: -U. If -U is "NA" which is the default, no bulk sequencing will be done. When -U is not "NA", bulk sequencing will be done in addition to single-cell sequencing. -U represents the levels to be sequenced, with different levels separated by a semicolon. 
+* Parameters controlling bulk sequencing: -U. If -U is "NA" which is the default, no bulk sequencing will be done. When -U is not "NA", bulk sequencing will be done in addition to single-cell sequencing. -U represents the levels to be sequenced, with different levels separated by a semicolon. 
 
-        ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
+    ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
         
-    * Parameters for sequencing ancestral nodes: -L and -U. These two are similar options: -L controls the levels to be sequenced for single-cell sequencing and -U controls the levels to be sequenced for bulk sequencing. -U can be "NA", in which case bulk sequencing will not be performed. For -L, if it is not specified, the program by default sequences the leaf cells. 
+* Parameters for sequencing ancestral nodes: -L and -U. These two are similar options: -L controls the levels to be sequenced for single-cell sequencing and -U controls the levels to be sequenced for bulk sequencing. -U can be "NA", in which case bulk sequencing will not be performed. For -L, if it is not specified, the program by default sequences the leaf cells. 
 
-        ```-L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1)```
+    ```-L (--levels)	This is for both tree inference and longitidunal study. For multiple levels, use semicolon to separate them. The first tumor cell has level 1. If counting from the bottom (leaf) of the tree, use minus before the number. For example, -1 is the leaf level. The range of the level should be within [-depth, depth]. Users can specify desired levels according to -G to know which levels are available. If that is the case, use a very small -K to make sure the depth is not smaller than the biggest level you specify. (default: -1)```
         
-        ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
+    ```-U (--bulk-levels)	The levels of the bulk sequencing separated by semicolon. The definition of the levels is the same as in -L. The default for this option is NA, meaning no bulk sequencing. ```
         
 **2. Sample reads from specified genomes.** This is the 2nd step. Given the two .npy files in the 1st step, this step is to sample the reads for each genome of interest.
 

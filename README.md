@@ -137,7 +137,7 @@ followed by the following parameters grouped by their functions.
         
 **2. Sample reads from specified genomes.** This is the 2nd step. Given the two .npy files in the 1st step, this step is to sample the reads for each genome of interest.
 
-    ```python main.par.overlapping.py -k 1``` 
+```python main.par.overlapping.py -k 1``` 
     
 followed by the following parameters grouped by their functions.  
     

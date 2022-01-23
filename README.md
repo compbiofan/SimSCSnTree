@@ -69,7 +69,7 @@ SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a
 
 **1. Generate the tree with CNVs/SNVs on the edges.** This step generates two npy files, one for the tree (containing all information of CNVs/SNVs on the edges and the tree structure) and one for intermediate files (containing chromosome name, chromosome length and the index of the nodes). The .npy files will be used in step 2 for sampling reads. 
     
-    ```python main.par.overlapping.py``` 
+```python main.par.overlapping.py``` 
     
 followed by the following parameters grouped by their functions.  
 

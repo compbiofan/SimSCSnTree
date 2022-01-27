@@ -108,7 +108,7 @@ if len(sys.argv) <= 1:
         -p (--processors)   Numbers of processors available.
         -r (--directory)    Location of simulated data. The program will remove the whole directory if it already exists. Otherwise it will create one. (default: test)
         -S (--wgsim-dir)    The directory of the binary of wgsim. It is in the same folder of this main.py. (need to specify) 
-        -n (--cell-num)     Number of the cells on a level of interest. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. 
+        -n (--cell-num)     Number of the cells on a level of interest. Always greater than -F treewidth. Treewidth controls the total number of clones whereas cell-num controls the total number of cells sequenced at a certain tree depth. (default: 8)
         -B (--Beta)         The program uses the Beta-splitting model to generate the phylogenetic tree. Specify a value between [0, 1]. (default: 0.5)
         -A (--Alpha)        The Alpha in Beta-splitting model. Specify a value between [0, 1]. The closer Alpha and Beta, the more balanced the tree. (default: 0.5).
         -D (--Delta)        The rate of a node to disappear. Specify a value between [0, 1]. If all nodes have daughter nodes, take 0. (default: 0)
@@ -149,7 +149,7 @@ parser = argparse.ArgumentParser(description='SCSim: A simulator for simulating 
 parser.add_argument('-p', '--processors', default=4)
 parser.add_argument('-r', '--directory', default="test")
 parser.add_argument('-S', '--wgsim-dir', default="")
-parser.add_argument('-n', '--leaf-num', default=4)
+parser.add_argument('-n', '--leaf-num', default=8)
 parser.add_argument('-B', '--Beta', default=0.5)
 parser.add_argument('-A', '--Alpha', default=0.5)
 parser.add_argument('-D', '--Delta', default=0)

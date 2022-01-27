@@ -10,8 +10,6 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Data requirement](#data_requirement)
     * [Environment setup](#environment_setup)
 - [Usage of SimSCSnTree.](#usage_of_single_cell_simulator)
-    * [General usage.](#general_usage)
-    * [Control of read depth, fluctuation, read length, etc.](#read_fluctuation)
 - [Examples.](#examples)
     * [Simulating both CNAs and SNVs on a tree (step 1). ](#eg_CNA_SNV)
     * [Simulating reads at the DOP-PCR read depth fluctuation (and bulk and MALBAC) (step 2). ](#eg_reads)
@@ -63,7 +61,6 @@ Suppose $this_dir is the path of this package.
     ```pip install anytree```
 
 # <a name="usage_of_single_cell_simulator"></a>Usage of SimSCSnTree.
-## <a name="general_usage"></a>General usage
 
 SimSCSnTree has two steps. Step 1 generate a tree, each node of which contains a genome and each edge of which CNA(s) and/or SNV(s) are imputed. Step 2 samples reads from the genomes on the nodes selected. The following shows how each step works. 
 

@@ -1095,8 +1095,8 @@ def print_chr_len(chrlen_array):
 def gen_tree(Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepthSigma, Output, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par):
 #def gen_tree(n, Beta, Alpha, Delta, treeDepth, treeDepthSigma, Output, cn_num, del_rate, min_cn_size, exp_theta, amp_p, template_ref, outfile, fa_prefix, snv_rate, root_mult, whole_amp, whole_amp_rate, whole_amp_num, amp_num_geo_par):
     # decide the width and depth of the tree
-    tree_W = np.random.normal(loc=treeWidth, scale=treeWidthSigma, size=1)
-    tree_D = np.random.normal(loc=treeDepth, scale=treeDepthSigma, size=1)
+    tree_W = int(np.random.normal(loc=treeWidth, scale=treeWidthSigma, size=1))
+    tree_D = int(np.random.normal(loc=treeDepth, scale=treeDepthSigma, size=1))
     tree_ele = tree_elements()
     tree_ele.tree_W = tree_W
     tree_ele.tree_D = tree_D
@@ -1155,7 +1155,7 @@ def gen_tree(Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepth
     #          node 0
     #        / CN1   \ CN2
     #    node 1    node 2
-    print("n is " + str(n))
+    #print("n is " + str(n))
     ti = np.random.exponential(1,2*tree_W-1)
     #print len(ti)
     Ui = np.random.uniform(0.0,1.0,tree_W-1)

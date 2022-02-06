@@ -185,7 +185,7 @@ For a complete list of options, type
 
 ## <a name="eg_CNA_SNV"></a>Simulating both CNAs and SNVs on a tree (step 1). 
 
-```python main.par.overlapping.py -r data --treewidth 8 --treewidthsigma 0.001 --treedepth 4 --treedepthsigma 0.001 --template-ref ~/references/hg19/hg19.fa -m 2000000 -e 5000000 -R 2 -M```
+```python main.par.overlapping.py -r data --treewidth 8 --treewidthsigma 0.001 --treedepth 4 --treedepthsigma 0.001 --template-ref ~/references/hg19/hg19.fa -m 2000000 -e 5000000 -R 2 -M 1```
       
 This command simulates a tree that has about 8 leaf cells (--treewidth 8 --treewidthsigma 0.001) with tree depth 4 (--treedepth 4) with both CNVs and SNVs imputed on the branches. The SNV rate is set up to be 2 (-R 2), and the CNV size is set up to follow an exponential destribution with p=5Mbp (-e 5000000) plus a minimum size of 2Mbp (-m 2000000). The SNV number on a branch will be SNV rate * branch length, whereas branch length is sampled from an exponential distribution with p = 1. Both alleles of the root node start from the hg19 reference file (--template-ref ~/references/hg19/hg19.fa). All .npy files will be stored in data folder (-r data) under the current directory. Remove "data" folder (or back it up to a different name) before running this command to avoid the error message.
 
@@ -197,7 +197,7 @@ This command runs step 2 to sample reads (-k 1). It reads the .npy files from da
 
 ## <a name="eg_longitudinal"></a>Simulating multiple levels of internal node (step 2). 
 
-```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L 1;2;3 -Y 0.1 -v 0.01 -l 70```
+```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L 1;2;3 -Y 0.1 -v 0.01 -l 70 -p 8```
       
 The difference between this command and the previous one is that instead of sequencing the leaf level (-L -1), it sequences at the level of 1, 2 and 3 whereas 1 corresponds to the first tumor cell under the trunk that connects this tumor cell and a normal cell. Here -Y 0.1 means only the first cell for every specified level will be sequenced. 
       

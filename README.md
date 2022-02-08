@@ -6,8 +6,8 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
 
 ## Table of Contents
 - [Installing SimSCSnTree.](#install_SimSCSnTree)
-    * [Software requirements](#software_requirements)
     * [Data requirement](#data_requirement)
+    * [Software requirements](#software_requirements)
     * [Environment setup](#environment_setup)
 - [Usage of SimSCSnTree.](#usage_of_single_cell_simulator)
 - [Examples.](#examples)
@@ -20,21 +20,22 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Simulating reads with different ploidies](#ploidies)
     * [Simulating reads with different levels of fluctuation](#fluctuations)
 - [Miscellaneous](#Misc)
-    * [Mapping the reads to the reference](#mapping)
     * [Making ground truth from the simulator for comparison](#ground_truth)
     * [Generating a newick formatted tree from .npy file in simulation](#newick)
 
 
 # <a name="install_SimSCSnTree"></a>Installing SimSCSnTree.
+## <a name="data_requirement"></a>Data requirement
+
+A reference file such as hg19.fa, which can be downloaded [here](https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz).
+
+The following applies if you don't use either BioConda or Pypi to install SimSCSnTree.  
+
 ## <a name="software_requirements"></a>Software requirements 
 
 1. Python 3 or up.
 
 2. Python modules: numpy 1.18 or above, graphviz, anytree. 
-
-## <a name="data_requirement"></a>Data requirement
-
-A reference file such as hg19.fa, which can be downloaded [here](https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz).
 
 ## <a name="environment_setup"></a>Environment setup 
 
@@ -100,9 +101,9 @@ followed by the following parameters grouped by their functions.
         
     ```-d (--del-rate)     The rate of deletion as compared to amplification. (default: 0.5)```
         
-    ```-m (--min-cn-size)  Minimum copy number size. (default: 200,000bp)```
+    ```-m (--min-cn-size)  Minimum copy number size. (default: 2000,000bp)```
         
-    ```-e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 0.000001)```
+    ```-e (--exp-theta)    The parameter for the Exponential distribution for copy number size, beyond the minimum one. (default: 5000,000bp)```
         
     ```-a (--amp-p)        The parameter for the Geometric distribution for the number of copies amplified. (default: 0.5)```
        
@@ -191,107 +192,95 @@ This command simulates a tree that has about 8 leaf cells (--treewidth 8 --treew
 
 ## <a name="eg_reads"></a>Simulating reads at the DOP-PCR read depth fluctuation (and bulk and MALBAC) (step 2). 
 
-```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L -1 -Y 0.1 -v 0.01 -l 70 -p 8```
+```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L -1 -Y 0.1 -v 0.01 -l 70```
       
 This command runs step 2 to sample reads (-k 1). It reads the .npy files from data folder (-r data), runs wgsim in ~/github/SimSCSnTree/wgsim-master/ (-S ~/github/SimSCSnTree/wgsim-master/) to simulate reads. Notice that the reference file needs to be specified (--template-ref ~/references/hg19/hg19.fa) as the .npy files from the first step does not store any fasta file for the sake of space. The reads are simulated only from the leaf level (-L -1) and each node at the leaf level represents only one cell (-M 1). Given -Y 0.1, this command simulates only the first leaf cell. 0 represents the start of the index of the cell of interest, and 1 is the end of the index of the cell of interest. Both start and end are zero-based. The cell at the end, 1 in this case, is not included in the sequence. If the first three cells are to be sequenced, specify with -Y 0.3. Notice --Lorenz-y is set to be 0.28, which is correponding to the read depth fluctuation from DOP-PCR. For reference, when --Lorenz-x is fixed to the default value (0.5), 0.38 corresponds to the bulk sequencing, and 0.27 corresponds to sequencing from MALBAC. The average read coverage is 0.01X (-v 0.01) and the read length is 70bp for each end for paired-end sequencing. -p 8 means there are eight processors to be used to finish this task and SimSCSnTree implemented the parallelization to use all processors specified in the sequencing step.
 
 ## <a name="eg_longitudinal"></a>Simulating multiple levels of internal node (step 2). 
 
-```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L 1;2;3 -Y 0.1 -v 0.01 -l 70 -p 8```
+```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L "1;2;3" -Y 0.1 -v 0.01 -l 70```
       
 The difference between this command and the previous one is that instead of sequencing the leaf level (-L -1), it sequences at the level of 1, 2 and 3 whereas 1 corresponds to the first tumor cell under the trunk that connects this tumor cell and a normal cell. Here -Y 0.1 means only the first cell for every specified level will be sequenced. 
       
 ## <a name="eg_clone"></a>Simulating clones of cells (step 2). 
 
-```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -n 100 -L -1 -Y 0.1```
+```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -n 100 -L -1 -Y 0.1 -v 0.001 -l 70```
       
-This command does not specify that a node is a single cell (no -M 1) and thus refers to a clonality study in which each node corresponds to multiple cells. The distribution of the cells is according to the Beta splitting model of the tree from 100 cells on the leaf (-n 100). Again, -L -1 -Y 0.1 specifies that the cells at the first leaf node will be sequenced. If -L is 1;2;3, then all the cells at the first node on the specified levels (1, 2 and 3) will be sequenced. 
+This command does not specify that a node is a single cell (no -M 1) and thus refers to a clonality study in which each node corresponds to multiple cells. The distribution of the cells is according to the Beta splitting model of the tree from 100 cells in total on the leaf (-n 100). Notice here we run on only the first leaf node using -L -1 -Y 0.1, and thus the number of cells being sequenced is not necessarily 100, but 100 multiplied by the percentage of the first leaf node on the leaf level. If -Y is not specified, then the summation of all cells being sequenced on the leaf level will be 100. If -L is "1;2;3" and no -Y is specified, then at each specified level (1, 2 and 3), 100 cells will be sequenced. 
       
 ## <a name="eg_bulk"></a>Simulating bulk sequencing (step 2). 
 
-```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L -1 -Y 0.1 -U -1 -V 20```
+```python main.par.overlapping.py -k 1 -r data -S ~/github/SimSCSnTree/wgsim-master/ --Lorenz-y 0.28 --template-ref ~/references/hg19/hg19.fa -M 1 -L -1 -Y 0.1 -v 0.001 -U -1 -V 5 -l 70```
       
-This command, in addition to sequencing the cell on the first leaf node, sequences also the bulk sample on the leaf level (-U -1) at the coverage of 20X (-V 20). SimSCSnTree sequences bulk sample before single cells if both are desired. 
+This command, in addition to sequencing the cell on the first leaf node, sequences also the bulk sample on the leaf level (-U -1) at the coverage of 5X (-V 5). SimSCSnTree sequences bulk sample before single cells if both are desired. 
 
-The following examples have also appeared in the previous version of SimSCSnTree, as published in "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020.
+The following examples have also appeared in the previous version of SimSCSnTree but edited according to the current new version. The previous version of SimSCSnTree can be found in "Assessing the performance of methods for copy number aberration detection from single-cell DNA sequencing data" authored by XFM, ME, NN and LN in 2020.
 
-## <a name="large_dataset"></a>Simulating large dataset.   
+## <a name="large_dataset"></a>Simulating large tree.   
 
-The following lists the command to simulate the large dataset. Step 2 of the simulator is the same as the general one described in "Usage". 
+```python main.par.overlapping.py -r data_large -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa --treewidth 50 --treewidthsigma 0.001 -X 8 -W 1 -C 0.3 -E 1 -J 1 -m 2000000 -e 5000000```
 
-```python main.par.py -S $wgsim-master -r $dir -n 10000 -p 1 -X 8 -t $ref -W 1 -C 0.3 -E 1 -l 36 -m 2000000 -e 5000000```
+This command simulates a large tree with 50 leaf nodes (--treewidth 50 --treewidthsigma 0.001). On the trunk, there are eight times more CNAs on the trunk than the other branches on the tree (-X 8), and there is whole chromosome amplification on the trunk (-W 1), whereas for each chromosome, the possibility that it has the amplification is 30% of chance (-C 0.3). If a chromosome is selected to have amplification on the trunk, the number of copies to be amplified is 1 (from -E 1) multiplied by a random draw from a geometric distribution whose p is 1 (-J 1). A CNA's size is 2000000 (-m 20000000) plus a random draw from an exponential distribution whose p is 5000000 (-e 50000000).  
 
 ## <a name="ploidies"></a>Simulating reads with different ploidies. 
 
-The following lists the command to simulate the tree and the alternative alleles (step 1 of the simulator) for different ploidies. Step 2 of the simulator is the same as the general one described in "Usage". 
+The following lists the command to simulate the tree and the alternative alleles (step 1 of the simulator) for different ploidies. 
 
 * Ploidy 1.55
 
-   ```python main.par.py -S $wgsim-master -r $dir -n 100 -p 1 -X 25 -t $ref -W 0 -l 36 -m 2000000 -e 5000000 -d 1 -c 3```
+   ```python main.par.overlapping.py -r data_ploidy_1p55 -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa --treewidth 8 --treewidthsigma 0.001 -X 25 -W 0 -m 2000000 -e 5000000 -d 1 -c 3```
+
+This command simulates a tree with eight leaf nodes (--treewidth 8 --treewidthsigma 0.001) and has twenty-five times more CNAs on the trunk than the other branches (-X 25). The number of CNAs on the other branches is a random draw from a poission distribution whose lambda is 3 (-c 3). There is no whole chromosome amplification (-W 0). CNAs' sizes are 2000000 (-m 20000000) plus a random draw from an exponential distribution whose p is 5000000 (-e 50000000), and all of the CNAs are copy number loss (-d 1). The resulting npy files will be stored in newly made folder data_ploidy_1p55 (-r data_ploidy_1p55).  
 
 * Ploidy 2.1
 
-   ```python main.par.py -S $wgsim-master -r $dir -n 100 -p 1 -X 8 -t $ref -W 1 -C 0.05 -l 36 -m 2000000 -e 5000000```
+   ```python main.par.overlapping.py -r data_ploidy_2p1 -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa --treewidth 8 --treewidthsigma 0.001 -X 8 -W 1 -C 0.05 -m 2000000 -e 5000000```
+
+This command simulates a tree with eight leaf nodes (--treewidth 8 --treewidthsigma 0.001) and has eight times more CNAs on the trunk than the other branches (-X 8). There is whole chromosome amplification (-W 1) and the possibility that a chromosome is amplified is 5% of the chance (-C 0.05). CNAs' sizes are 2000000 (-m 20000000) plus a random draw from an exponential distribution whose p is 5000000 (-e 50000000). The resulting npy files will be stored in newly made folder data_ploidy_1p55 (-r data_ploidy_2p1).  
 
 * Ploidy 3.0
 
-   ```python main.par.py -S $wgsim-master -r $dir -n 100 -p 1 -X 8 -t $ref -W 1 -C 0.5 -l 36 -m 2000000 -e 5000000 -E 1```
+   ```python main.par.overlapping.py -r data_ploidy_3 -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa --treewidth 8 --treewidthsigma 0.001 -X 8 -W 1 -C 0.5 -m 2000000 -e 5000000```
+
+The major difference between this command and the previous one for ploidy=2.1 is that there is now 50% of the chance for a chromosome to have whole chromosome amplification on the trunk (-C 0.5) instead of 5%.  
 
 * Ploidy 3.8
 
-   ```python main.par.py -S $wgsim-master -r $dir -n 100 -p 1 -X 8 -t $ref -W 1 -C 0.9 -l 36 -e 5000000 -E 1 -m 10000000```
+   ```python main.par.overlapping.py -r data_ploidy_3p8 -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa --treewidth 8 --treewidthsigma 0.001 -X 8 -W 1 -C 0.9 -m 2000000 -e 5000000```
+
+The major difference between this command and the previous one for ploidy=3.0 is that there is now 90% of the chance for a chromosome to have whole chromosome amplification on the trunk (-C 0.9) instead of 50%.  
 
 * Ploidy 5.26
 
-   ```python main.par.py -S $wgsim-master -r $dir -n 100 -p 1 -X 8 -t $ref -W 1 -C 0.9 -l 36 -e 5000000 -E 1 -m 10000000 -J 0.55```
+   ```python main.par.overlapping.py -r data_ploidy_5p26 -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa --treewidth 8 --treewidthsigma 0.001 -X 8 -W 1 -C 0.9 -J 0.55 -m 10000000 -e 5000000```
+
+Two major differences between this command and the previous one for ploidy=3.8 are 1) the number of whole chromosome amplification copy equals to a multiplier, which is 1 since -E 1 by default, multiplied by a random draw from a geometric distribution whose p equals to 0.55 (-J 0.55) instead of 1; 2) the minimum CNA size is 10000000 (-m 10000000) instead of 2000000.  
 
 ## <a name="fluctuations"></a>Simulating reads with different levels of fluctuation 
 
-The following lists the command to simulate the reads  (step 2 of the simulator) for different fluctuations. 
+The following lists the command to simulate the reads  (step 2 of the simulator) for different fluctuations. Notice the major difference is on -y.  
 
 * MALBAC
 
-   ```python main.par.py -S $wgsim-master -r $dir -l 36 -x 0.5 -y 0.27 -k 1```
+   ```python main.par.overlapping.py -r data_fluctuation_MALBAC -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa -l 36 -x 0.5 -y 0.27 -k 1```
 
 * DOP-PCR
 
-   ```python main.par.py -S $wgsim-master -r $dir -l 36 -x 0.5 -y 0.28 -k 1```
+   ```python main.par.overlapping.py -r data_fluctuation_DOPPCR -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa -l 36 -x 0.5 -y 0.28 -k 1```
 
 * TnBC
 
-   ```python main.par.py -S $wgsim-master -r $dir -l 36 -x 0.5 -y 0.33 -k 1```
+   ```python main.par.overlapping.py -r data_fluctuation_TnBC -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa -l 36 -x 0.5 -y 0.33 -k 1```
 
 * Bulk
 
-   ```python main.par.py -S $wgsim-master -r $dir -l 36 -x 0.5 -y 0.38 -k 1```
+   ```python main.par.overlapping.py -r data_fluctuation_bulk -S ~/github/SimSCSnTree/wgsim-master/ --template-ref ~/references/hg19/hg19.fa -l 36 -x 0.5 -y 0.38 -k 1```
 
 # <a name="Misc"></a>Miscellaneous.
 
-## <a name="mapping"></a>Mapping the reads to the reference 
-
-For both simulated and real data, we use bwa to align the reads to the reference. We eliminated reads with mapping quality score < 40 in creating the bam file. The following are the commands we used to generate the bam files.
-
-For simulated data, we have an extra step that merges the fastq files corresponding to the paternal and maternal alleles for each end of the paired end reads. Command as follows.
-
-```cat $dir/leaf${n}_allele0_1.fq $dir/leaf${n}_allele1_1.fq > $dir/leaf${n}_1.fq```
-
-```cat $dir/leaf${n}_allele0_2.fq $dir/leaf${n}_allele1_2.fq > $dir/leaf${n}_2.fq```
-
-${n} is the index of the leaf. Here we use "leaf" as the prefix of the file names generated by the simulator. $dir is the directory that contains the simulated fastq files.
-
-The following step is the same for both simulated and real data.
-
-```gen_bam/make_bam_from_fq.sh $dir/leaf${n} $hg19 $processor $mapping_qual_t```
-
-This script requires installing bwa and samtools.
-
-$hg19 is the reference fasta file in the absolute path. $processor is the number of processor to run bwa. $mapping_qual_t is the threshold of mapping quality. We set it to be 40 for all experiments in this paper. 
-
-The outputs of this step are the sorted bam (duplication removal step was also performed in this script) and the bai file, with the names $dir/leaf${n}.sorted.bam[.bai].  
-
 ## <a name="ground_truth"></a>Making ground truth from the simulator for comparison. 
 
-1. Read the from_first_step.tree.npy file generated in the first step of the simulator and convert it to a csv file. 
+1. Read the from_first_step.tree.npy file in the folder specified by -r option generated in the first step of the simulator and convert it to a csv file.  
 
     ```python read_tree.py -s -f from_first_step.tree.npy > gt.all.csv```
 
@@ -305,19 +294,11 @@ The outputs of this step are the sorted bam (duplication removal step was also p
 
     This script will generate ground truth file for each cell in gt_sep folder, with the prefix gt. 
 
-    For Ginkgo and HMMcopy, we compare the result with the ground truth for each cell separately. For CopyNumber, the ground truth is the combination of all cells that are involved in the study. We eliminate the CNAs in ground truth whose supporting cells are less than five, for CopyNumber alone. The commands are as follows.
-
-    ```perl extract_gt.pl gt.all.csv selected.leaves > gt.selected.csv```
-
-    ```perl -ane 'print join("\t", @F[0 .. 2]) . "\n"' gt.selected.csv | sort | uniq -c | perl -ane 'print join("\t", @F[1 .. 3]) . "\n" if($F[0] > 5)' > gt.forCopyNumber.csv``` 
-
-    This step generates gt.forCopyNumber.csv as the ground truth to be compared to CopyNumber's results.
-
 3. If you want to generate segcopy formatted ground truth file for comparison, use the following command. 
 
     ```python bin_groundtruth.py -a segcopy_f -b gt.all.csv --leafonly(optional) > gt.all.segcopyformatted```
 
-    segcopy_f is a file you generated from Ginkgo (see Ginkgo under commands to run HMMcopy, Ginkgo and CopyNumber (#commands_3methods) for details. gt.all.csv is the file you generated in step #1 in this section. If you want to include all ancestral nodes along with the leaves, do not put the option --leafonly in the command line. Otherwise use --leafonly in your command. 
+    segcopy_f is a file you generated from Ginkgo named SegCopy. We use this file as a template to generate a file with the same format. gt.all.csv is the file you generated in step #1 in this section. If you want to include all ancestral nodes along with the leaves, do not put the option --leafonly in the command line. Otherwise use --leafonly in your command. 
 
     The format of the output is "chr, start, end, leaf#1, leaf#2, ...". From the fourth column (1-based), the entries are integer copy numbers. 
 

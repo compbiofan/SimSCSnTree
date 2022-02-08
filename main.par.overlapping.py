@@ -70,7 +70,7 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
                 try:
                     subprocess.check_call(args, shell=True)
                 except subprocess.CalledProcessError:
-                    error_out("Cannot work on '%s'" % args) 
+                    print("Cannot work on " + args) 
 
                 # check N's
                 N_true = check_Ns(tmp_fa_file)
@@ -81,13 +81,13 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
                     try:
                         subprocess.check_call(args, shell=True)
                     except subprocess.CalledProcessError:
-                        error_out("Cannot work on '%s'" % args) 
+                        print("Cannot work on " + args) 
 
                 args = "rm " + tmp_fa_file 
                 try:
                     subprocess.check_call(args, shell=True)
                 except subprocess.CalledProcessError:
-                    error_out("Cannot remove '%s'" % tmp_fa_file)
+                    print("Cannot remove " + tmp_fa_file)
                 #popen = subprocess.Popen(args)
                 #, stdout=subprocess.PIPE, shell=True)
                 #popen.wait()
@@ -162,9 +162,9 @@ parser.add_argument('-K', '--treedepthsigma', default=0.5)
 #parser.add_argument('-O', '--Output', default="test")
 parser.add_argument('-c', '--cn-num', default=1)
 parser.add_argument('-d', '--del-rate', default=0.5)
-parser.add_argument('-m', '--min-cn-size', default=200000)
+parser.add_argument('-m', '--min-cn-size', default=2000000)
 #parser.add_argument('-m', '--min-cn-size', default=10)
-parser.add_argument('-e', '--exp-theta', default=0.000001)
+parser.add_argument('-e', '--exp-theta', default=5000000)
 parser.add_argument('-a', '--amp-p', default=0.5)
 parser.add_argument('-t', '--template-ref', default="hg19.fa")
 #parser.add_argument('-t', '--template-ref', default="chr1.fa")
@@ -254,7 +254,7 @@ levels = args.levels.split(";")
 bulk_levels = []
 if args.bulk_levels != "NA":
     bulk_levels = args.bulk_levels.split(";")
-    cov_bulk = int(args.cov_bulk)
+    cov_bulk = float(args.cov_bulk)
 
 if skip == 0: 
     if not os.path.exists(dir):
@@ -276,7 +276,7 @@ def check_Ns(file):
             if line.find('N') != -1:
                 N_line = N_line + 1
     f.close()
-    if N_line/float(total_line) > 0.2:
+    if total_line != 0 and N_line/float(total_line) > 0.2:
         return 0
     return 1
 
@@ -345,16 +345,19 @@ if skip == 1:
     # now alpha and beta are redefined and are for the read coverage uniformity
     [Alpha, Beta] = get_beta_dist(x0, y0)
 
-    [Alpha_bulk, Beta_bulk] = get_beta_dist(x0_bulk, y0_bulk)
-    print("Bulk sequencing: Alpha = " + str(Alpha_bulk) + ", Beta = " + str(Beta_bulk))
+    if len(bulk_levels) != 0:
+        [Alpha_bulk, Beta_bulk] = get_beta_dist(x0_bulk, y0_bulk)
+        print("Bulk sequencing: Alpha = " + str(Alpha_bulk) + ", Beta = " + str(Beta_bulk))
     # start sequencing bulk 
     for bulk_level in bulk_levels:
         index = 0
         original_level = bulk_level
         bulk_level = int(bulk_level)
         if bulk_level < 0:
-            bulk_level = depth + bulk_level + 1
-        if bulk_level not in level_chrlens:
+            bulk_level = max_depth + bulk_level + 1
+        print("bulk_level = " + str(bulk_level))
+        print("level_chrlens = " + str(level_chrlens))
+        if len(level_chrlens[bulk_level]) == 0:
             sys.exit("Warning: level " + original_level + " is out of range. Please specify a small -K, and use the -G to constrain your specified levels. ") 
         level_chrlen = level_chrlens[bulk_level]
         level_index = level_indice[bulk_level]
@@ -366,12 +369,12 @@ if skip == 1:
             perc = tree[level_index[index]].perc
             ref_files = fa_prefix + str(level_index[index]) + "_*.fa"
             processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha_bulk, Beta_bulk, x0_bulk, y0_bulk, cov_bulk * perc, l, window_size, u, chr_name_array, -1, original_level, "bulk")))
-            index = index + 1
             # when all nodes at this level is sampled, merge them into one big fastq file as this is bulk sequencing
-            fq_file_name1 = "level" + original_level + "_node" + level_index[index] + "_allele1.fq" 
+            fq_file_name1 = "level" + original_level + "_node" + str(level_index[index]) + "_allele1.fq" 
             fq_file_names.append(fq_file_name1)
-            fq_file_name2 = "level" + original_level + "_node" + level_index[index] + "_allele2.fq" 
+            fq_file_name2 = "level" + original_level + "_node" + str(level_index[index]) + "_allele2.fq" 
             fq_file_names.append(fq_file_name2)
+            index = index + 1
 
         
         bulk_fq = "level" + original_level + "_bulk.fq"
@@ -386,11 +389,12 @@ if skip == 1:
 
         print("Done with generating bulk for level " + original_level)
 
-    print("Alpha = %.2f, Beta = %.2f", Alpha, Beta)
+    #print("Alpha = %.2f, Beta = %.2f", Alpha, Beta)
     print("Number of processes: " + str(NUM_OF_PROCESSES))
     # assume for each level, the total number of cells remain the same
     print("Number of cells for each level: " + str(n))
 
+    print("levels: " + str(levels))
     # Serial for each level and each node. For each node, make it parallel. 
     for level in levels:
         index = 0
@@ -427,9 +431,11 @@ if skip == 1:
                 # since this is a subclone, get the percentage of it
                 #perc = tree[leaf_index[index]].perc
                 perc = tree[level_index[index]].perc
-                cell_num = int(n) * perc
-                # allowing not considering multiple cells in a clone (node in a tree), thus each node has only one cell
-                if single_cell_per_clone:
+                cell_num = int(n * perc)
+                if not single_cell_per_clone:
+                    print("Cell number for the current clone is " + str(cell_num))
+                    # allowing not considering multiple cells in a clone (node in a tree), thus each node has only one cell
+                else:
                     cell_num = 1
                 #total_cell_num += cell_num
                 #TODO need to take care the difference of the added cell number and the total
@@ -460,6 +466,7 @@ if skip == 1:
         
             # deal with the next node on this level
             index = index + 1
+        print("At level" + str(level))
 
     
     # clean up the temp fa files

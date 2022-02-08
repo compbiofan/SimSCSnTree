@@ -70,7 +70,7 @@ for i in range(len(tree)):
 
 str_ = convert2newick(Tree, "(0)", 0)
 #print str_[1:-1]
-print str_
+print(str_)
 
 
 

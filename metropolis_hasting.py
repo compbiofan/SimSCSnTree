@@ -86,7 +86,7 @@ x0 = Alpha/ (Alpha + Beta)
 chr_len = 30000000
 n = int(chr_len / window_size)
 ini = x0
-print ini
+print(ini)
 mean_read = get_mean(cov, window_size, readlen)
 # output: a vector of read numbers for each window
 read_numbers = []
@@ -102,8 +102,8 @@ for i in range(n):
     read_p = x_p / x0 * mean_read
     read_numbers.append(read_p)
 
-print read_numbers
-print [Alpha, Beta]
+print(read_numbers)
+print([Alpha, Beta])
 f.close()
 
 

@@ -162,8 +162,8 @@ def is_in(a, mytuple):
     return False
 
 def print_chr_len(chrlen_array):
-    print "chr len:"
-    print chrlen_array
+    print("chr len:")
+    print(chrlen_array)
     return ""
 
 

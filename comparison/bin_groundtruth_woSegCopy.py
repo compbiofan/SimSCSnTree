@@ -132,19 +132,19 @@ for line in file_b:
 file_b.close()
 
 # print result
-print "CHR\tSTART\tEND",
+print("CHR\tSTART\tEND"),
 for leaf in leaves_order:
-    print "\t" + leaf,
-print ""
+    print("\t" + leaf),
+print("")
 
 for chr in chrs_order:
     num = 0
     for bin in pos[chr]:
         [s, e] = re.split(r'\.', bin)
-        print chr + "\t" + str(s) + "\t" + str(e),
+        print(chr + "\t" + str(s) + "\t" + str(e)),
         for leaf in leaves_order:
-            print "\t" + str(mat[chr][num][leaf]),
+            print("\t" + str(mat[chr][num][leaf])),
         num += 1
-        print ""
+        print("")
 
 

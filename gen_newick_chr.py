@@ -138,7 +138,7 @@ for i in range(len(tree)):
 
 str_ = convert2newick(Tree, "(0)", 0)
 str_ = "(" + look_for_leaves(str_[1:-1], non_leaves) + ")"
-print str_
+print(str_)
 
            
 

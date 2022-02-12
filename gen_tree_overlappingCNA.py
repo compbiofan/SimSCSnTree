@@ -12,7 +12,6 @@ Contacting email: fan@cs.fsu.edu
 # -*- coding: utf-8 -*- 
 from anytree import Node, RenderTree
 import numpy as np
-import graphviz as gv
 import sys
 import re
 import copy

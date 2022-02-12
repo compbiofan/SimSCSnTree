@@ -13,7 +13,6 @@ Contacting email: xf2@rice.edu
 # -*- coding: utf-8 -*- 
 from anytree import Node, RenderTree
 import numpy as np
-import graphviz as gv
 from anytree.dotexport import RenderTreeGraph
 from CN import CN
 from Gen_Ref_Fa import gen_ref, init_ref, write_ref

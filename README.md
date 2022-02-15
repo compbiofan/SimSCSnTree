@@ -25,17 +25,35 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
 
 
 # <a name="install_SimSCSnTree"></a>Installing SimSCSnTree.
+There are two ways to install SimSCSnTree. 
+
+The first is through BioConda. To do this, just use 
+
+```conda install simscsntree```
+
+It may take a while for the metadata to be collected and installed. This option is preferred because you don't have to install all the dependencies or worry about the python version. You can skip Software requirements secsion. However, you still have to download the reference file directed in the Data requirement section. If you use the BioConda option, use 
+
+```python -m SimSCSnTree``` 
+
+to launch all the commands. 
+
+The second is through downloading the files in github. If that is the case, you have to use 
+
+```python main.par.overlapping.py``` 
+
+to launch all the commands. In this document, we show the command lines using this option.  
+
 ## <a name="data_requirement"></a>Data requirement
 
 A reference file such as hg19.fa, which can be downloaded [here](https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz).
 
-The following applies if you don't use either BioConda or Pypi to install SimSCSnTree.  
+The following applies if you don't use BioConda to install SimSCSnTree.  
 
 ## <a name="software_requirements"></a>Software requirements 
 
 1. Python 3 or up.
 
-2. Python modules: numpy 1.18 or above, graphviz, anytree. 
+2. Python modules: numpy 1.18 or above, anytree. 
 
 ## <a name="environment_setup"></a>Environment setup 
 
@@ -53,11 +71,9 @@ Suppose $this_dir is the path of this package.
 
     ```chmod u+x wgsim```
 
-3. Python modules: numpy, graphviz, anytree. 
+3. Python modules: numpy, anytree. 
     
     ```pip install numpy```
-        
-    ```pip install graphviz```
         
     ```pip install anytree```
 

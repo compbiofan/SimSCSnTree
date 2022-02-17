@@ -31,7 +31,7 @@ The first is through BioConda. To do this, just use
 
 ```conda install simscsntree```
 
-It may take a while for the metadata to be collected and installed. This option is preferred because you don't have to install all the dependencies or worry about the python version. You can skip Software requirements and Environment setup section except step 2 in Environment setup as wgsim is not available on BioConda. To do that, download the package from this github link (git clone https://github.com/compbiofan/SimSCSnTree.git) and go to the SimSCSnTree directory, further down to wgsim-master subfolder. Follow the direction in step 2 in Environment setup section to install the wgsim. After that download the reference file directed in the Data requirement section. If you use the BioConda option, use 
+It may take a while for the metadata to be collected and installed. This option is preferred because you don't have to install all the dependencies or worry about the python version. You can skip Software requirements and Environment setup section except step 2 in Environment setup as wgsim is not available on BioConda. To do that, download the package from this github link (git clone https://github.com/compbiofan/SimSCSnTree.git) and go to the SimSCSnTree directory, further down to wgsim-master subfolder. Follow the direction in step 2 in Environment setup section to install the wgsim. After you are done with installing wgsim, download the reference file directed in the Data requirement section. If you use the BioConda option, use 
 
 ```python -m SimSCSnTree``` 
 

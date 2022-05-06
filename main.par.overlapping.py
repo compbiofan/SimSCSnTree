@@ -441,19 +441,24 @@ if skip == 1:
                 #TODO need to take care the difference of the added cell number and the total
                 cell_i_last = False
                 for cell_i in range(cell_num):
+                    print("    Sequencing cell " + str(cell_i))
                     # sequence each cell in this subclone 
                     if cell_i == cell_num - 1:
                         # for removing the fa file
                         cell_i_last = True
                     #processes.append(mp.Process(target=gen_reads, args=(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i)))
-                    processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc")))
+                    #processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc")))
+                    # parallelization happens inside each cell
+                    p = mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc"))
+                    p.start()
+                    p.join()
     
                 # clean the rest
-                for p in processes:
-                    p.start()
+                #for p in processes:
+                #    p.start()
         
-                for p in processes:
-                    p.join()
+                #for p in processes:
+                #    p.join()
     
                 if cell_i_last:
                     #print "Done with the whole clone " + str(leaf_index[index]) + ", will remove it. "

@@ -20,7 +20,8 @@ Authors: Xian Fan (xfan2@fsu.edu), Luay Nakhleh (nakhleh@rice.edu)
     * [Simulating reads with different ploidies](#ploidies)
     * [Simulating reads with different levels of fluctuation](#fluctuations)
 - [Miscellaneous](#Misc)
-    * [Making ground truth from the simulator for comparison](#ground_truth)
+    * [Making ground truth CNA list from the simulator for comparison](#ground_truth_CNA)
+    * [Making ground truth SNV list from the simulator for comparison](#ground_truth_SNV)
     * [Generating a newick formatted tree from .npy file in simulation](#newick)
 
 
@@ -294,7 +295,7 @@ The following lists the command to simulate the reads  (step 2 of the simulator)
 
 # <a name="Misc"></a>Miscellaneous.
 
-## <a name="ground_truth"></a>Making ground truth from the simulator for comparison. 
+## <a name="ground_truth_CNA"></a>Making ground truth CNA list from the simulator for comparison. 
 
 1. Read the from_first_step.tree.npy file in the folder specified by -r option generated in the first step of the simulator and convert it to a csv file.  
 
@@ -317,6 +318,14 @@ The following lists the command to simulate the reads  (step 2 of the simulator)
     segcopy_f is a file you generated from Ginkgo named SegCopy. We use this file as a template to generate a file with the same format. gt.all.csv is the file you generated in step #1 in this section. If you want to include all ancestral nodes along with the leaves, do not put the option --leafonly in the command line. Otherwise use --leafonly in your command. 
 
     The format of the output is "chr, start, end, leaf#1, leaf#2, ...". From the fourth column (1-based), the entries are integer copy numbers. 
+
+## <a name="ground_truth_SNV"></a>Making ground truth SNV list from the simulator for comparison. 
+
+Read the from_first_step.tree.npy file in the folder specified by -n option generated in the first step of the simulator and convert it to a csv file.  
+
+    ```python read_tree.py -n -f from_first_step.tree.npy > snv.all.csv```
+
+The resulting file's format is chromosome, position, reference nucleotide, variant nucleotide, the allele the variant is on (0 or 1), and the ID of the cell that contains this SNV.   
 
 ## <a name="newick"></a>Generate a newick-formatted tree from .npy file in simulation. 
 

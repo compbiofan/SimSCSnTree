@@ -323,7 +323,7 @@ The following lists the command to simulate the reads  (step 2 of the simulator)
 
 Read the from_first_step.tree.npy file in the folder specified by -n option generated in the first step of the simulator and convert it to a csv file.  
 
-    ```python read_tree.py -n -f from_first_step.tree.npy > snv.all.csv```
+```python read_tree.py -n -f from_first_step.tree.npy > snv.all.csv```
 
 The resulting file's format is chromosome, position, reference nucleotide, variant nucleotide, the allele the variant is on (0 or 1), and the ID of the cell that contains this SNV.   
 

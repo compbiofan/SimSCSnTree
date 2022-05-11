@@ -23,7 +23,7 @@ y0_bulk = 0.38
 def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, bulk_or_sc):
     this_leaf_index = leaf_index[index]
     print(all_chrlen)
-    print("####" + str(index))
+    print("Now sequencing cell " + str(cell_i) + " on node number " + str(index) + " which is on level " + str(original_level) + ". ")
     # each allele
     for i in range(len(all_chrlen)):
         fa_f = fa_prefix + str(this_leaf_index) + "_" + str(i + 1) + ".fa"

@@ -16,6 +16,19 @@ class mynode:
         self.parent = parent
         self.children = []
 
+# print which level has how many and which nodes 
+def print_levels(tree_element_f):
+    tree_elements_arr = numpy.load(tree_elements_f, allow_pickle=True)
+    tree_elements = tree_elements_arr[0]
+    level_indice = tree_elements.level_indice
+    # level_indice is a dictionary pointing from level to the node indices in an array
+    for i in range(len(level_indice)):
+        nodes = level_indice[i]
+        if i == 0:
+            print("Skip level " + str(i) + " which represents the normal cell. ")
+        else:
+            print("On level " + str(i) + ", there are " + str(len(nodes)) + " nodes, and they are " + ",".join([str(k) for k in nodes]))
+
 # print all snvs if no node is specified
 def print_snvs(tree, cell):
     print("\t".join(["chr", "pos", "ori_nuc", "new_nuc", "allele", "cell"]))
@@ -424,6 +437,8 @@ parser.add_argument('-F', '--segcopyf', default="NA")
 parser.add_argument('-o', '--retrievealloverlaps', action='store_true')
 parser.add_argument('-n', '--printsnvs', action='store_true')
 parser.add_argument('-x', '--printsnvsforcell', default="NA")
+parser.add_argument('-v', '--printlevels', action='store_true')
+parser.add_argument('-E', '--treeelementsf', default="NA")
 
 
 args = parser.parse_args()
@@ -444,12 +459,14 @@ segcopy_f = args.segcopyf
 retrievealloverlaps = args.retrievealloverlaps
 printsnvs = args.printsnvs
 printsnvsforcell = args.printsnvsforcell
+printlevels = args.printlevels
+tree_elements_f = args.treeelementsf
 
 # main starts here
 if npy_f == "": 
     print("""
     Given a tree in npy format, output its leaf index or the CNV summary. 
-    esage: python read_tree.py -l -s -e -d -o -f [tree.npy]
+    Usage: python read_tree.py -l -s -e -d -o -f [tree.npy] -E [tree_elements.npy]
         -l  (--leaf)    Print leaf index, one per line. (default: off)
         -s  (--summary) Print CNV summary, one per line (chr, start, end, CN). (default: off)
         -L  (--selectleaf)  select to print leaf, in conjunction with if_summary. (default: off)
@@ -467,6 +484,8 @@ if npy_f == "":
         -o  (--retrievealloverlaps)  Retrieve new overlapping CNAs, even for those occurring on the same edge from true_CNs in the tree. Output the new CNAs for each node compared with its parent node. 
         -n  (--printsnvs)   Print SNVs for all cells.
         -x  (--printsnvsforcell)    Print SNVs for a particular set of nodes separated by colon specified here. 
+        -v  (--printlevels) Print which level has which nodes.
+        -E  (--tree_elements_f) Tree elements file is used when -v is on. 
         """)
     sys.exit(0)
 
@@ -507,3 +526,8 @@ if printsnvs:
 
 if printsnvsforcell != "NA":
     print_snvs(tree, printsnvsforcell) 
+
+if printlevels:
+    print_levels(tree_elements_f)
+
+

@@ -1352,6 +1352,8 @@ def gen_tree(Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepth
                 depth = tree.getDepth() + 1
                 if max_depth < depth:
                     max_depth = depth
+                #Tree[this_id].depth_ = Tree[Tree[this_id].parentID].depth_ + 1
+                #depth = Tree[this_id].depth_
                 Tree[node_number - 1].depth_ = depth
                 Tree[node_number].depth_ = depth
                 # determine the percentage from the Beta splitting and parents' percentage
@@ -1438,6 +1440,12 @@ def gen_tree(Beta, Alpha, Delta, treeWidth, treeWidthSigma, treeDepth, treeDepth
 
     
         j+=1
+
+    # fix all leaf cells level to be -1
+    for node_id in range(len(Tree)): 
+        if Tree[node_id].if_leaf:
+            Tree[node_id].depth_ = max_depth 
+        
     
     # save the max_depth
     tree_ele.max_depth = max_depth

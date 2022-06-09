@@ -248,8 +248,24 @@ def combine_cnas(h):
         if interval > 1:
             h_ret.append([chr, start, end, cn])
     return h_ret
+   
+# processed are those that have already to poped up from the bucket 
+def convert2newick_general(Tree, str_, bucket):
+    if len(bucket) == 0:
+        return str_
+    splitted = re.split(r'(\d+)', str_) 
+    new_bucket = []
+    for i in bucket:
+        for j in range(len(splitted)):
+            if str(i) == splitted[j]:
+                # replace it with children
+                splitted[j] = "(" + ",".join([str(x) for x in Tree[i].children]) + ")" + str(i)
+                for k in Tree[i].children:
+                    if len(Tree[k].children) != 0:
+                        new_bucket.append(k)
     
-            
+    return convert2newick_general(Tree, "".join(splitted), new_bucket)
+ 
 # print the tree in newick format, level is to control when to stop to dig into the tree (in which case only leaves in that cluster and the head node will be printed)
 def convert2newick(Tree, str_, i):
     # stop
@@ -289,18 +305,18 @@ def print_newick(tree):
 
     # a new tree with a simplified structure
     Tree = []
-    
-    # step 1, read the npy file and put them in MyNode
+    # in case a certain parent has not been added, initialize Tree
     for i in range(len(tree)):
-        node = tree[i]
-        parent = node.parentID
-        ID = i
-        Tree.append(mynode(ID, parent))
-        # update the children of its parent
-        Tree[parent].children.append(str(ID))
+        Tree.append(mynode(i, -1)) 
     
-    str_ = convert2newick(Tree, "(0)", 0)
-    #print str[1:-1]
+    # read the npy file and put them in MyNode
+    for i in range(len(tree)):
+        Tree[i].parent = tree[i].parent.id
+        if tree[i].parent.id != -1:
+            Tree[tree[i].parent.id].children.append(i)
+
+    str_ = convert2newick_general(Tree, "0", [0]) 
+    #str_ = convert2newick(Tree, "(0)", 0)
     return str_
 
 def print_tree(tree):

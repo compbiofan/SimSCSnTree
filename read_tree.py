@@ -16,6 +16,33 @@ class mynode:
         self.parent = parent
         self.children = []
 
+def get_ploidy(tree, tree_elements_f, ref):
+    tmp_name_array, chr_sz = getlen_ref(ref)
+    ref_total = sum(chr_sz) * 2
+    level = get_level(tree_elements_f)
+    i = 0
+    for t in tree:
+        p = sum(t.chrlen[0]) + sum(t.chrlen[1]) / ref_total
+        print(str(i) + "\t" + str(level[i]) + "\t" + str(p))
+        i = i + 1
+    
+    
+# for an integer number i (node index), return the level this node is at, starting from 1 (the first tumor cell), in an array
+def get_level(tree_elements_f):
+    tree_elements_arr = numpy.load(tree_elements_f, allow_pickle=True)
+    tree_elements = tree_elements_arr[0]
+    level_indice = tree_elements.level_indice
+    ret = []
+    # level_indice is a dictionary pointing from level to the node indices in an array
+    for i in range(len(level_indice)):
+        nodes = level_indice[i]
+        if i != 0:
+            # i is the level
+            for k in nodes:
+                ret[k] = i
+    return ret
+     
+
 # print which level has how many and which nodes 
 def print_levels(tree_element_f):
     tree_elements_arr = numpy.load(tree_elements_f, allow_pickle=True)
@@ -454,6 +481,7 @@ parser.add_argument('-o', '--retrievealloverlaps', action='store_true')
 parser.add_argument('-n', '--printsnvs', action='store_true')
 parser.add_argument('-x', '--printsnvsforcell', default="NA")
 parser.add_argument('-v', '--printlevels', action='store_true')
+parser.add_argument('-p', '--ploidy', default="store_true")
 parser.add_argument('-E', '--treeelementsf', default="NA")
 
 
@@ -477,6 +505,7 @@ printsnvs = args.printsnvs
 printsnvsforcell = args.printsnvsforcell
 printlevels = args.printlevels
 tree_elements_f = args.treeelementsf
+get_ploidy = args.ploidy
 
 # main starts here
 if npy_f == "": 
@@ -501,6 +530,7 @@ if npy_f == "":
         -n  (--printsnvs)   Print SNVs for all cells.
         -x  (--printsnvsforcell)    Print SNVs for a particular set of nodes separated by colon specified here. 
         -v  (--printlevels) Print which level has which nodes.
+        -p  (--ploidy)      Print the ploidy of each cell in the format of nodeID, level, ploidy. Has to provide -r and -E if -p is on.  
         -E  (--tree_elements_f) Tree elements file is used when -v is on. 
         """)
     sys.exit(0)
@@ -546,4 +576,5 @@ if printsnvsforcell != "NA":
 if printlevels:
     print_levels(tree_elements_f)
 
-
+if getploidy:
+    get_ploidy(tree, tree_elements_f, ref):

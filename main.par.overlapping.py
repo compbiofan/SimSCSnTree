@@ -13,7 +13,7 @@ from Gen_Ref_Fa import make_fa, make_fa_wABs
 from Gen_Ref_Fa import init_ref
 
 # given normal genome size (diploid)
-genome_size = 6.32 * 10^9
+#genome_size = 6.32 * 10^9
 
 # fixed bulk uniformity
 x0_bulk = 0.5 
@@ -28,8 +28,6 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
     print(all_chrlen)
     print("Now sequencing cell " + str(cell_i) + " on node number " + str(index) + " which is on level " + str(original_level) + ". ")
 
-    # convert the coverage so that it assumes a normal ploidy genome length (this is to avoid inflation of read number due to the increase of ploidy)
-    cov = convert_coverage(cov, all_chrlen)
 
     # each allele
     for i in range(len(all_chrlen)):
@@ -107,13 +105,30 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
     else:
         print("Done with node " + str(this_leaf_index) + " cell " + str(cell_i))
 
-def convert_coverage(cov, all_chrlen):
+def convert_coverage(cov, all_chrlen, ref_total_size):
     # calculate the total length of the genome
     for i in range(all_chrlen):
         for j in range(all_chrlen[i]):
             l += all_chrlen[i][j]
-    return cov / l * genome_size 
-    
+    return cov / l * (2 * ref_total_size) 
+
+
+def check_Ns(file):
+    N_line = 0
+    total_line = 0
+    with open(file, "r") as f:
+        for line in f:
+            total_line = total_line + 1
+            if line.find('N') != -1:
+                N_line = N_line + 1
+    f.close()
+    if total_line != 0 and N_line/float(total_line) > 0.2:
+        return 0
+    return 1
+
+
+
+
 if len(sys.argv) <= 1:
     print("""
     A single cell simulator generating low coverage data. The program automatically generates a phylogenetic tree with copy number variations on the branches. On each leave of the tree, it generates the reads whose error profile, such as uneven coverage, mimics the real single cell data. 
@@ -280,21 +295,6 @@ leaf_chrlen = []
 leaf_index = []
 chr_name_array = []
 
-def check_Ns(file):
-    N_line = 0
-    total_line = 0
-    with open(file, "r") as f:
-        for line in f:
-            total_line = total_line + 1
-            if line.find('N') != -1:
-                N_line = N_line + 1
-    f.close()
-    if total_line != 0 and N_line/float(total_line) > 0.2:
-        return 0
-    return 1
-
-
-
 # Step 1. generate a phylogentic tree that has copy number alterations on branches.
 # Now all CNs are in tree, not generating fa or remember it in the tree nodes.
 if skip == 0:
@@ -349,6 +349,11 @@ if skip == 1:
     level_indice = tree_elements.level_indice
     chr_name_array = tree_elements.chr_name_array
     [ref, tmp_chr_name, tmp_len_chr] = init_ref(template_ref)
+    # get the length of the reference for normalizing the coverage
+    tmp_name_array, chr_sz = getlen_ref(ref)
+    ref_total_sz = 0
+    for i in chr_sz:
+        ref_total_sz += i
     #ref = numpy.load(ref_f)
     #print(leaf_chrlen_f)
     #print(leaf_index_f)
@@ -381,7 +386,8 @@ if skip == 1:
             make_fa_wABs(level_index[index], tree, ref, chr_name_array, fa_prefix)
             perc = tree[level_index[index]].perc
             ref_files = fa_prefix + str(level_index[index]) + "_*.fa"
-            processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha_bulk, Beta_bulk, x0_bulk, y0_bulk, cov_bulk * perc, l, window_size, u, chr_name_array, -1, original_level, "bulk")))
+            this_cov_bulk = perc * convert_coverage(cov_bulk, all_chrlen, ref_total_size)
+            processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha_bulk, Beta_bulk, x0_bulk, y0_bulk, this_cov_bulk, l, window_size, u, chr_name_array, -1, original_level, "bulk")))
             # when all nodes at this level is sampled, merge them into one big fastq file as this is bulk sequencing
             fq_file_name1 = "level" + original_level + "_node" + str(level_index[index]) + "_allele1.fq" 
             fq_file_names.append(fq_file_name1)
@@ -425,6 +431,11 @@ if skip == 1:
         level_chrlen = level_chrlens[level]
         level_index = level_indice[level]
         for all_chrlen in level_chrlen:
+
+            # convert the coverage so that it assumes a normal ploidy genome length (this is to avoid inflation of read number due to the increase of ploidy)
+            this_cov = convert_coverage(cov, all_chrlen, ref_total_size)
+
+
             # each node at this level
     #for all_chrlen in leaf_chrlen:
             # each leaf
@@ -462,7 +473,7 @@ if skip == 1:
                     #processes.append(mp.Process(target=gen_reads, args=(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i)))
                     #processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc")))
                     # parallelization happens inside each cell
-                    p = mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc"))
+                    p = mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, this_cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc"))
                     p.start()
                     p.join()
     

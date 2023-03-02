@@ -12,6 +12,9 @@ from gen_readcount import get_beta_dist
 from Gen_Ref_Fa import make_fa, make_fa_wABs 
 from Gen_Ref_Fa import init_ref
 
+# given normal genome size (diploid)
+genome_size = 6.32 * 10^9
+
 # fixed bulk uniformity
 x0_bulk = 0.5 
 y0_bulk = 0.38 
@@ -24,6 +27,10 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
     this_leaf_index = leaf_index[index]
     print(all_chrlen)
     print("Now sequencing cell " + str(cell_i) + " on node number " + str(index) + " which is on level " + str(original_level) + ". ")
+
+    # convert the coverage so that it assumes a normal ploidy genome length (this is to avoid inflation of read number due to the increase of ploidy)
+    cov = convert_coverage(cov, all_chrlen)
+
     # each allele
     for i in range(len(all_chrlen)):
         fa_f = fa_prefix + str(this_leaf_index) + "_" + str(i + 1) + ".fa"
@@ -100,6 +107,12 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
     else:
         print("Done with node " + str(this_leaf_index) + " cell " + str(cell_i))
 
+def convert_coverage(cov, all_chrlen):
+    # calculate the total length of the genome
+    for i in range(all_chrlen):
+        for j in range(all_chrlen[i]):
+            l += all_chrlen[i][j]
+    return cov / l * genome_size 
     
 if len(sys.argv) <= 1:
     print("""

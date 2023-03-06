@@ -11,6 +11,7 @@ from gen_readcount import gen_readcount
 from gen_readcount import get_beta_dist
 from Gen_Ref_Fa import make_fa, make_fa_wABs 
 from Gen_Ref_Fa import init_ref
+from Gen_Ref_Fa import getlen_ref
 
 # given normal genome size (diploid)
 #genome_size = 6.32 * 10^9

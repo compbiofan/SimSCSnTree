@@ -22,7 +22,7 @@ def get_ploidy(tree, tree_elements_f, ref):
     level = get_level(tree_elements_f)
     i = 0
     for t in tree:
-        p = sum(t.chrlen[0]) + sum(t.chrlen[1]) / ref_total
+        p = 2 * (sum(t.chrlen[0]) + sum(t.chrlen[1])) / ref_total
         print(str(i) + "\t" + str(level[i]) + "\t" + str(p))
         i = i + 1
     
@@ -32,7 +32,7 @@ def get_level(tree_elements_f):
     tree_elements_arr = numpy.load(tree_elements_f, allow_pickle=True)
     tree_elements = tree_elements_arr[0]
     level_indice = tree_elements.level_indice
-    ret = []
+    ret = {}
     # level_indice is a dictionary pointing from level to the node indices in an array
     for i in range(len(level_indice)):
         nodes = level_indice[i]
@@ -481,7 +481,7 @@ parser.add_argument('-o', '--retrievealloverlaps', action='store_true')
 parser.add_argument('-n', '--printsnvs', action='store_true')
 parser.add_argument('-x', '--printsnvsforcell', default="NA")
 parser.add_argument('-v', '--printlevels', action='store_true')
-parser.add_argument('-p', '--ploidy', default="store_true")
+parser.add_argument('-p', '--ploidy', action="store_true")
 parser.add_argument('-E', '--treeelementsf', default="NA")
 
 
@@ -505,7 +505,7 @@ printsnvs = args.printsnvs
 printsnvsforcell = args.printsnvsforcell
 printlevels = args.printlevels
 tree_elements_f = args.treeelementsf
-get_ploidy = args.ploidy
+getploidy = args.ploidy
 
 # main starts here
 if npy_f == "": 
@@ -577,4 +577,4 @@ if printlevels:
     print_levels(tree_elements_f)
 
 if getploidy:
-    get_ploidy(tree, tree_elements_f, ref):
+    get_ploidy(tree, tree_elements_f, ref_f)

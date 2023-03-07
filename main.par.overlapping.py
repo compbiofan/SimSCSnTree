@@ -11,7 +11,7 @@ from gen_readcount import gen_readcount
 from gen_readcount import get_beta_dist
 from Gen_Ref_Fa import make_fa, make_fa_wABs 
 from Gen_Ref_Fa import init_ref
-from Gen_Ref_Fa import getlen_ref
+#from Gen_Ref_Fa import getlen_ref
 
 # given normal genome size (diploid)
 #genome_size = 6.32 * 10^9
@@ -108,6 +108,7 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
 
 def convert_coverage(cov, all_chrlen, ref_total_size):
     # calculate the total length of the genome
+    l = 0
     for i in range(all_chrlen):
         for j in range(all_chrlen[i]):
             l += all_chrlen[i][j]
@@ -351,9 +352,9 @@ if skip == 1:
     chr_name_array = tree_elements.chr_name_array
     [ref, tmp_chr_name, tmp_len_chr] = init_ref(template_ref)
     # get the length of the reference for normalizing the coverage
-    tmp_name_array, chr_sz = getlen_ref(ref)
+    #tmp_name_array, chr_sz = getlen_ref(ref)
     ref_total_sz = 0
-    for i in chr_sz:
+    for i in tmp_len_chr:
         ref_total_sz += i
     #ref = numpy.load(ref_f)
     #print(leaf_chrlen_f)
@@ -387,7 +388,7 @@ if skip == 1:
             make_fa_wABs(level_index[index], tree, ref, chr_name_array, fa_prefix)
             perc = tree[level_index[index]].perc
             ref_files = fa_prefix + str(level_index[index]) + "_*.fa"
-            this_cov_bulk = perc * convert_coverage(cov_bulk, all_chrlen, ref_total_size)
+            this_cov_bulk = perc * convert_coverage(cov_bulk, all_chrlen, ref_total_sz)
             processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha_bulk, Beta_bulk, x0_bulk, y0_bulk, this_cov_bulk, l, window_size, u, chr_name_array, -1, original_level, "bulk")))
             # when all nodes at this level is sampled, merge them into one big fastq file as this is bulk sequencing
             fq_file_name1 = "level" + original_level + "_node" + str(level_index[index]) + "_allele1.fq" 
@@ -434,7 +435,7 @@ if skip == 1:
         for all_chrlen in level_chrlen:
 
             # convert the coverage so that it assumes a normal ploidy genome length (this is to avoid inflation of read number due to the increase of ploidy)
-            this_cov = convert_coverage(cov, all_chrlen, ref_total_size)
+            this_cov = convert_coverage(cov, all_chrlen, ref_total_sz)
 
 
             # each node at this level

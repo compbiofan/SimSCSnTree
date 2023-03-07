@@ -109,8 +109,8 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
 def convert_coverage(cov, all_chrlen, ref_total_size):
     # calculate the total length of the genome
     l = 0
-    for i in range(all_chrlen):
-        for j in range(all_chrlen[i]):
+    for i in range(len(all_chrlen)):
+        for j in range(len(all_chrlen[i])):
             l += all_chrlen[i][j]
     return cov / l * (2 * ref_total_size) 
 

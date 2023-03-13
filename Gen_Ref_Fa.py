@@ -95,7 +95,7 @@ def init_ref(template):
     line = file.readline().rstrip('\n')
     while(line != ""):
         if line[0] == '>':
-            chr_name.append(line[1:])
+            chr_name.append(line[1:].replace(" ", "_").replace(":", "_").replace("-", "_"))
             if str_ != "":
                 ref.append(str_)
                 len_chr.append(len(str_))

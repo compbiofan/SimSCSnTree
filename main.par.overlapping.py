@@ -437,6 +437,8 @@ if skip == 1:
             # convert the coverage so that it assumes a normal ploidy genome length (this is to avoid inflation of read number due to the increase of ploidy)
             this_cov = convert_coverage(cov, all_chrlen, ref_total_sz)
 
+            print("Given cov is " + str(cov) + ", and the coverage for this cell after considering ploidy is " + str(this_cov))
+
 
             # each node at this level
     #for all_chrlen in leaf_chrlen:

@@ -313,7 +313,7 @@ The following lists the command to simulate the reads  (step 2 of the simulator)
 
 3. If you want to generate segcopy formatted ground truth file for comparison, use the following command. 
 
-    ```python bin_groundtruth.py -a segcopy_f -b gt.all.csv --leafonly(optional) > gt.all.segcopyformatted```
+    ```python comparison/bin_groundtruth.py -a segcopy_f -b gt.all.csv --leafonly(optional) > gt.all.segcopyformatted```
 
     segcopy_f is a file you generated from Ginkgo named SegCopy. We use this file as a template to generate a file with the same format. gt.all.csv is the file you generated in step #1 in this section. If you want to include all ancestral nodes along with the leaves, do not put the option --leafonly in the command line. Otherwise use --leafonly in your command. 
 

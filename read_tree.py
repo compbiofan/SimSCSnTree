@@ -44,7 +44,7 @@ def get_level(tree_elements_f):
      
 
 # print which level has how many and which nodes 
-def print_levels(tree_element_f):
+def print_levels(tree, tree_element_f):
     tree_elements_arr = numpy.load(tree_elements_f, allow_pickle=True)
     tree_elements = tree_elements_arr[0]
     level_indice = tree_elements.level_indice
@@ -54,7 +54,7 @@ def print_levels(tree_element_f):
         if i == 0:
             print("Skip level " + str(i) + " which represents the normal cell. ")
         else:
-            print("On level " + str(i) + ", there are " + str(len(nodes)) + " nodes, and they are " + ",".join([str(k) for k in nodes]))
+            print("On level " + str(i) + ", there are " + str(len(nodes)) + " nodes, and they are " + ",".join([str(k) + "(" + '%.2f' % tree[k].perc + ")" for k in nodes])) 
 
 # print all snvs if no node is specified
 def print_snvs(tree, cell):
@@ -529,7 +529,7 @@ if npy_f == "":
         -o  (--retrievealloverlaps)  Retrieve new overlapping CNAs, even for those occurring on the same edge from true_CNs in the tree. Output the new CNAs for each node compared with its parent node. 
         -n  (--printsnvs)   Print SNVs for all cells.
         -x  (--printsnvsforcell)    Print SNVs for a particular set of nodes separated by colon specified here. 
-        -v  (--printlevels) Print which level has which nodes.
+        -v  (--printlevels) Print which level has which nodes, and each nodes' percentage.
         -p  (--ploidy)      Print the ploidy of each cell in the format of nodeID, level, ploidy. Has to provide -r and -E if -p is on.  
         -E  (--tree_elements_f) Tree elements file is used when -v is on. 
         """)
@@ -574,7 +574,7 @@ if printsnvsforcell != "NA":
     print_snvs(tree, printsnvsforcell) 
 
 if printlevels:
-    print_levels(tree_elements_f)
+    print_levels(tree, tree_elements_f)
 
 if getploidy:
     get_ploidy(tree, tree_elements_f, ref_f)

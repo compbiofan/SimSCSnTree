@@ -209,7 +209,7 @@ parser = argparse.ArgumentParser(description='SCSim: A simulator for simulating 
 parser.add_argument('-p', '--processors', default=4)
 parser.add_argument('-r', '--directory', default="test")
 parser.add_argument('-S', '--wgsim-dir', default="")
-parser.add_argument('-n', '--leaf-num', default=8)
+parser.add_argument('-n', '--cell-num', default=8)
 parser.add_argument('-B', '--Beta', default=0.5)
 parser.add_argument('-A', '--Alpha', default=0.5)
 parser.add_argument('-D', '--Delta', default=0)
@@ -259,7 +259,7 @@ skip = int(args.skip_first_step)
 dir = args.directory
 save_prefix = dir + "/" + "from_first_step" 
 wgsim_dir = args.wgsim_dir
-n = int(args.leaf_num)
+n = int(args.cell_num)
 Beta = float(args.Beta)
 Alpha = float(args.Alpha)
 Delta = float(args.Delta)

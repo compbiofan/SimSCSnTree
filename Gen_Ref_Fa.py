@@ -109,6 +109,27 @@ def init_ref(template):
     ref_diploid = [ref, ref]
     return ref_diploid, chr_name, len_chr
 
+def get_ref_chr_len_name(template):
+    # read the template fasta file and get the chromosome length and name, both are 1xn array, in which n is the number of chromosomes in the ref
+    chr_name = []
+    len_chr = []
+    tmp_len = -1
+    file = open(template, "r")
+    line = file.readline().rstrip('\n')
+    while(line != ""):
+        if line[0] == '>':
+            chr_name.append(line[1:].replace(" ", "_").replace(":", "_").replace("-", "_"))
+            if tmp_len != -1:
+                len_chr.append(tmp_len)
+            tmp_len = 0
+        else:
+            tmp_len += len(line)
+        line = file.readline().rstrip('\n')
+    len_chr.append(tmp_len)
+    file.close()
+    return chr_name, len_chr
+
+
 def gen_ref(ref, CNs):
     # return this reference
     ret_ref = [row[:] for row in ref]

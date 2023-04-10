@@ -11,6 +11,15 @@ from gen_readcount import gen_readcount
 from gen_readcount import get_beta_dist
 from Gen_Ref_Fa import make_fa, make_fa_wABs 
 from Gen_Ref_Fa import init_ref
+from joblib import Parallel, delayed
+from tqdm import tqdm
+import logging
+## set logger
+logging.basicConfig(
+format='%(asctime)s %(levelname)-8s %(message)s',
+level=logging.INFO,
+datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(" ")
 #from Gen_Ref_Fa import getlen_ref
 
 # given normal genome size (diploid)
@@ -23,15 +32,49 @@ y0_bulk = 0.38
 # see how many processors I have
 #NUM_OF_PROCESSES = mp.cpu_count()
 
+def run_one_seg(dir,fa_f, chr_name, start, end,this_readcount,l,out_fq1,out_fq2):
+    # chr_name_array[j]
+
+    tmp_fa_file = "_".join([dir+'/'+fa_f.split('/')[-1], str(chr_name), str(start), str(end)]) + ".fa" 
+    # use samtools faidx to get this sequence that is to be sequenced into reads
+    args = "samtools faidx " + fa_f + " " + chr_name + ":" + str(start) + "-" + str(end) + " > " + tmp_fa_file
+# TODO check how many N's 
+# conclusion: Popen cannot exit. check_call can. But check_call does not work on all Ns as wgsim does not work on it. 
+    print(args)
+    try:
+        subprocess.check_call(args, shell=True)
+    except subprocess.CalledProcessError:
+        print("Cannot work on " + args) 
+
+    # check N's
+    N_true = check_Ns(tmp_fa_file)
+
+    if N_true == 1:
+        args = wgsim_dir + "wgsim -h -N " + str(this_readcount) + " -1 " + str(l) + " -2 " + str(l) + " " + tmp_fa_file + " " + out_fq1 + " " + out_fq2
+        print(args)
+        try:
+            subprocess.check_call(args, shell=True)
+        except subprocess.CalledProcessError:
+            print("Cannot work on " + args) 
+
+    args = "rm " + tmp_fa_file 
+    try:
+        subprocess.check_call(args, shell=True)
+    except subprocess.CalledProcessError:
+        print("Cannot remove " + tmp_fa_file)
+    return 
+
 # for both bulk and single-cell sampling purposes
 def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, bulk_or_sc):
     this_leaf_index = leaf_index[index]
     print(all_chrlen)
-    print("Now sequencing cell " + str(cell_i) + " on node number " + str(index) + " which is on level " + str(original_level) + ". ")
+    logger.info("Now sequencing cell " + str(cell_i) + " on node number " + str(index) + " which is on level " + str(original_level) + ". ")
 
 
     # each allele
+    logger.info("len(all_chrlen):"+str(len(all_chrlen)))
     for i in range(len(all_chrlen)):
+        logger.info('i: '+str(i))
         fa_f = fa_prefix + str(this_leaf_index) + "_" + str(i + 1) + ".fa"
         # sequence the reads using wgsim
         #out_fq_prefix = "leaf" + str(this_leaf_index) + "_cell" + str(cell_i) + "_allele" + str(i)
@@ -42,58 +85,45 @@ def gen_reads(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0
 
         out_fq1 = dir + "/" + out_fq_prefix + "_1.fq"
         out_fq2 = dir + "/" + out_fq_prefix + "_2.fq"
-        args = "samtools faidx " + fa_f
-        popen = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
-        popen.wait()
-        #popen.terminate()
-        #output = popen.stdout.read()
-        #print output
+        os.system('rm '+ out_fq1+' '+out_fq2)
+        # args = "samtools faidx " + fa_f
+        # # uncomment below two lines later can!!!!!!!!!!
+        # popen = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
+        # popen.wait()
+
+
 
         # each chromosome
         for j in range(len(all_chrlen[i])):
-            print(j)
+            
             this_chrlen = all_chrlen[i][j]
             readcounts = gen_readcount(dir, Alpha, Beta, x0, y0, cov, l, window_size, u, all_chrlen[i][j])
             # each bin
             start = 0
             end = 0
+            # seg_list = []
             for k in readcounts:
                 this_readcount = int(k/2)
                 # extract this segment of fa
                 start = end + 1
                 end = start + window_size - 1
-                print(end)
+                print('end: '+str(end))
                 if end > this_chrlen:
                     end = this_chrlen
                 if start > this_chrlen:
                     break
-                tmp_fa_file = "_".join([fa_f, str(chr_name_array[j]), str(start), str(end)]) + ".fa" 
-                # use samtools faidx to get this sequence that is to be sequenced into reads
-                args = "samtools faidx " + fa_f + " " + chr_name_array[j] + ":" + str(start) + "-" + str(end) + " > " + tmp_fa_file
-# TODO check how many N's 
-# conclusion: Popen cannot exit. check_call can. But check_call does not work on all Ns as wgsim does not work on it. 
-                print(args)
-                try:
-                    subprocess.check_call(args, shell=True)
-                except subprocess.CalledProcessError:
-                    print("Cannot work on " + args) 
 
-                # check N's
-                N_true = check_Ns(tmp_fa_file)
+                run_one_seg(dir, fa_f, chr_name_array[j], start, end,this_readcount,l,out_fq1,out_fq2)
 
-                if N_true == 1:
-                    args = wgsim_dir + "wgsim -h -N " + str(this_readcount) + " -1 " + str(l) + " -2 " + str(l) + " " + tmp_fa_file + " " + out_fq1 + " " + out_fq2
-                    print(args)
-                    try:
-                        subprocess.check_call(args, shell=True)
-                    except subprocess.CalledProcessError:
-                        print("Cannot work on " + args) 
+                # seg_list.append((start,end,this_chrlen))
 
-                args = "rm " + tmp_fa_file 
-                try:
-                    subprocess.check_call(args, shell=True)
-                except subprocess.CalledProcessError:
-                    print("Cannot remove " + tmp_fa_file)
+            # n_thread = 30
+            # sequences = Parallel(n_jobs=n_thread)(delayed(run_one_seg)\
+            #     (fa_f, chr_name_array[j], seg[0], seg[1],seg[2],l,out_fq1,out_fq2) for seg in tqdm(seg_list))
+
+            
+
+
                 #popen = subprocess.Popen(args)
                 #, stdout=subprocess.PIPE, shell=True)
                 #popen.wait()
@@ -469,24 +499,45 @@ if skip == 1:
                 #TODO need to take care the difference of the added cell number and the total
                 cell_i_last = False
                 for cell_i in range(cell_num):
-                    print("    Sequencing cell " + str(cell_i))
+                    # print("    Sequencing cell " + str(cell_i))
                     # sequence each cell in this subclone 
                     if cell_i == cell_num - 1:
                         # for removing the fa file
                         cell_i_last = True
-                    #processes.append(mp.Process(target=gen_reads, args=(dir, index, leaf_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i)))
-                    #processes.append(mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc")))
+                    os.system("mkdir -p "+dir+'/cell%d/'%cell_i)
+
                     # parallelization happens inside each cell
-                    p = mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, this_cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc"))
-                    p.start()
-                    p.join()
+                    # print(all_chrlen)
+                    # p = mp.Process(target=gen_reads, args=(dir, index, level_index, all_chrlen, fa_prefix, Alpha, Beta, x0, y0, this_cov, l, window_size, u, chr_name_array, cell_i, original_level, "sc"))
+                    # p.start()
+                    # p.join()
+
+                for i in range(len(all_chrlen)):
+                    fa_f = fa_prefix + str(level_index[index]) + "_" + str(i + 1) + ".fa"
+                    args = "samtools faidx " + fa_f
+                    popen = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
+                    popen.wait()
+
+                # n_thread = 15
+                sequences = Parallel(n_jobs=NUM_OF_PROCESSES )(delayed(gen_reads)(dir+'/cell%d/'%cell_i, 
+                    index, 
+                    level_index, 
+                    all_chrlen, 
+                    fa_prefix, 
+                    Alpha, 
+                    Beta, 
+                    x0, 
+                    y0, 
+                    this_cov, 
+                    l, 
+                    window_size, 
+                    u, 
+                    chr_name_array, 
+                    cell_i, 
+                    original_level, 
+                    "sc") for cell_i in tqdm(range(cell_num)))
     
-                # clean the rest
-                #for p in processes:
-                #    p.start()
-        
-                #for p in processes:
-                #    p.join()
+
     
                 if cell_i_last:
                     #print "Done with the whole clone " + str(leaf_index[index]) + ", will remove it. "

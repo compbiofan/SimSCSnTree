@@ -61,8 +61,8 @@ def run_one_seg(dir,fa_f, chr_name, start, end,this_readcount,l,out_fq1,out_fq2)
 def gen_reads(dir, chr_len, chr_name, fq_prefix, cell_i, template_fa, Alpha, Beta, x0, y0, cov, l, window_size, u):
     logger.info("Now sequencing cell " + str(cell_i))
 
-    out_fq1 = dir + "/" + fq_prefix + "_1.fq"
-    out_fq2 = dir + "/" + fq_prefix + "_2.fq"
+    out_fq1 = dir + fq_prefix + "_1.fq"
+    out_fq2 = dir + fq_prefix + "_2.fq"
     os.system('rm '+ out_fq1+' '+out_fq2)
 
     # each chromosome
@@ -138,7 +138,7 @@ args = parser.parse_args()
 NUM_OF_PROCESSES = int(args.processors)
 dir = args.directory
 wgsim_dir = args.wgsim_dir
-n = int(args.leaf_num)
+n = int(args.normal_num)
 template_ref = args.template_ref
 outfile = dir + "/" + args.outfile
 fq_prefix = args.fq_prefix
@@ -149,7 +149,7 @@ l = int(args.readlen)
 window_size = int(args.window_size)
 u = float(args.acceptance_rate)
 
-[chr_name, chr_len] = get_ref_chr_len_name(template)
+[chr_name, chr_len] = get_ref_chr_len_name(template_ref)
 
 if not os.path.exists(dir):
     subprocess.check_call("mkdir " + dir, shell=True)
@@ -169,7 +169,7 @@ sequences = Parallel(n_jobs=NUM_OF_PROCESSES )(delayed(gen_reads)(dir+'/cell%d/'
                 chr_name,
                 fq_prefix,
                 cell_i,
-                template_fa, 
+                template_ref, 
                 Alpha, 
                 Beta, 
                 x0, 
